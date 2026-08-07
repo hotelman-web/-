@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://hotel-theborn-report.netlify.app/ -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>호텔 더본 제주 · 고객 상세 분석 대시보드</title>
+<!-- 링크 미리보기(구글챗·메신저 카드) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="호텔 더본 제주 · 호텔사업팀">
+<meta property="og:title" content="고객 상세 분석 대시보드 · 호텔 더본 제주">
+<meta property="og:description" content="월간 고객 분석 인포그래픽 — 탐모라 조식 · 객실 투숙 · 미니바 · 체크인 현황 요약">
+<meta property="og:image" content="https://hotel-theborn-report.netlify.app/assets/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://hotel-theborn-report.netlify.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="고객 상세 분석 대시보드 · 호텔 더본 제주">
+<meta name="twitter:description" content="월간 고객 분석 인포그래픽 — 탐모라 · 객실 · 미니바 · 체크인">
+<meta name="twitter:image" content="https://hotel-theborn-report.netlify.app/assets/cover.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --green:#1e4034; --green-2:#2d5a45; --green-deep:#14312a;
+  --gold:#c0913c; --gold-l:#d9bc7a; --gold-bg:#fdfaf0; --gold-line:#e8d9a8;
+  --blue:#3b6ea5; --brick:#a4442e; --grn-ok:#4c9a5f;
+  --page:#eef0ea; --card:#ffffff;
+  --ink:#1c2b24; --ink-2:#4a5a52; --ink-3:#8a968f; --line:#dde3dc;
+  --radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+  background:var(--page); color:var(--ink); line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
+
+/* ===== Masthead ===== */
+.masthead{
+  background:linear-gradient(120deg,var(--green-deep) 0%,var(--green) 60%,var(--green-2) 100%);
+  color:#fff; padding:28px 38px 24px; position:relative;
+  border-bottom:4px solid var(--gold);
+}
+.mast-row{display:flex;align-items:center;gap:16px}
+.mast-star{
+  width:52px;height:52px;background:linear-gradient(135deg,var(--gold),#a67c2e);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;color:#fff;flex:0 0 auto;box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.mast-title{font-size:1.85rem;font-weight:800;letter-spacing:-.01em}
+.mast-title small{display:block;font-weight:500;font-size:.92rem;color:var(--gold-l);letter-spacing:.06em;margin-top:2px}
+.mast-meta{display:flex;gap:28px;margin-top:16px;font-size:.9rem;color:#cfdcd4;flex-wrap:wrap}
+.mast-meta b{color:#fff;font-weight:700;margin-left:7px;font-size:.95rem}
+.mast-meta .chip{border-left:3px solid var(--gold);padding-left:12px}
+.mast-actions{position:absolute;right:38px;top:28px;display:flex;gap:10px;z-index:2}
+.btn{
+  border:1.5px solid var(--gold-l);background:rgba(255,255,255,.06);
+  color:#fff;padding:10px 18px;border-radius:8px;font-size:.9rem;font-weight:700;
+}
+.btn:hover{background:rgba(255,255,255,.14)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.solid:hover{background:#a67c2e}
+.btn:focus-visible,.tab:focus-visible,.vtab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.period-picker{display:inline-flex;gap:6px;margin-left:8px;vertical-align:-2px}
+.mast-select{
+  background:rgba(255,255,255,.10);color:#fff;border:1.5px solid var(--gold-l);
+  border-radius:7px;padding:5px 10px;font-size:.9rem;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:background .15s;
+}
+.mast-select:hover{background:rgba(255,255,255,.18)}
+.mast-select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.mast-select option{color:#1c2b24;background:#fff}
+
+/* ===== 데이터 입력 패널 ===== */
+.input-panel{max-width:1240px;margin:18px auto 0;padding:0 24px}
+.panel-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 2px rgba(20,49,42,.06)}
+.input-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line)}
+.input-head h2{font-size:1rem;font-weight:800;color:var(--green)}
+.input-head .toggle{font-size:.86rem;color:var(--gold);background:none;border:none;font-weight:700}
+.input-tabs{display:flex;gap:2px;padding:12px 20px 0}
+.tab{border:1px solid var(--line);border-bottom:none;background:#f6f7f4;color:var(--ink-2);padding:9px 18px;font-size:.88rem;font-weight:700;border-radius:8px 8px 0 0}
+.tab.active{background:#fff;color:var(--green);border-color:var(--gold-line);position:relative}
+.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#fff}
+.input-body{border-top:1px solid var(--gold-line);padding:18px 20px}
+.input-pane{display:none}
+.input-pane.active{display:block}
+.drop{border:1.5px dashed #c5cdc4;border-radius:8px;padding:24px;text-align:center;color:var(--ink-2);font-size:.92rem;background:#f8f9f6;transition:all .15s}
+.drop.hover{border-color:var(--gold);background:var(--gold-bg)}
+.drop b{color:var(--green)}
+.drop input{display:none}
+.pill-btn{display:inline-block;margin-top:10px;background:var(--green);color:#fff;border:none;padding:10px 20px;border-radius:7px;font-size:.88rem;font-weight:700}
+.pill-btn.ghost{background:#fff;color:var(--green);border:1.5px solid #c5cdc4}
+.pill-btn:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:.8rem;color:var(--ink-3);margin-top:8px}
+.target-select{display:flex;gap:16px;align-items:center;margin-bottom:14px;font-size:.9rem;color:var(--ink-2);flex-wrap:wrap}
+.target-select label{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--ink)}
+.status{margin-top:12px;padding:12px 16px;border-radius:7px;font-size:.88rem;display:none}
+.status.info{display:block;background:var(--gold-bg);color:#8a6a24;border:1px solid var(--gold-line)}
+.status.ok{display:block;background:#eef7ef;color:#2c6e3f;border:1px solid #bcdcc2}
+.status.err{display:block;background:#fbefec;color:var(--brick);border:1px solid #eccfc5}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--gold-line);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+textarea.json-edit{width:100%;min-height:240px;border:1px solid var(--line);border-radius:8px;font-family:"SF Mono",Consolas,monospace;font-size:.8rem;padding:14px;color:var(--ink);background:#f8f9f6;resize:vertical}
+.preview-img{max-height:130px;border:1px solid var(--line);border-radius:6px;margin-top:10px}
+
+/* ===== 뷰 탭 ===== */
+.view-nav{max-width:1240px;margin:20px auto 0;padding:0 24px;display:flex;gap:10px;flex-wrap:wrap}
+.vtab{flex:1;min-width:220px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 18px;transition:all .15s}
+.vtab .vt-no{font-size:.7rem;letter-spacing:.2em;color:var(--gold);font-weight:800}
+.vtab .vt-name{display:block;font-size:1.1rem;font-weight:800;color:var(--ink);margin-top:2px}
+.vtab .vt-sub{display:block;font-size:.78rem;color:var(--ink-3);margin-top:1px}
+.vtab.active{background:var(--green);border-color:var(--green);box-shadow:inset 0 -3px 0 var(--gold)}
+.vtab.active .vt-no{color:var(--gold-l)}
+.vtab.active .vt-name{color:#fff}
+.vtab.active .vt-sub{color:#b9cdc2}
+
+/* ===== 대시보드 ===== */
+.dash-wrap{max-width:1240px;margin:16px auto 60px;padding:0 24px}
+.dash{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 4px rgba(20,49,42,.08);overflow:hidden}
+.dash-body{padding:0 30px 28px}
+
+/* 섹션 헤더 (골드 넘버 + 다크그린 바) */
+.sec-head{
+  display:flex;align-items:center;gap:14px;margin:26px -30px 18px;
+  background:var(--green);padding:14px 30px;
+  border-bottom:3px solid var(--gold);
+}
+.sec-head:first-child{margin-top:0}
+.sec-no{
+  width:40px;height:40px;background:linear-gradient(135deg,var(--gold),#a67c2e);
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:1.15rem;flex:0 0 auto;
+}
+.sec-head h2{color:#fff;font-size:1.32rem;font-weight:800;letter-spacing:-.01em}
+.sec-head .sec-note{margin-left:auto;font-size:.85rem;color:var(--gold-l);font-weight:600}
+
+/* KPI 카드 — 다크그린 솔리드, 대형 수치 */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.kpi{
+  background:linear-gradient(135deg,var(--green-deep),var(--green-2));
+  border-radius:9px;padding:18px 20px 16px;color:#fff;
+  border-top:3px solid var(--gold);
+}
+.kpi .k-label{font-size:.85rem;color:var(--gold-l);font-weight:700;letter-spacing:.02em}
+.kpi .k-value{font-size:2.3rem;font-weight:800;letter-spacing:-.02em;margin-top:4px;line-height:1.1}
+.kpi .k-value small{font-size:1.15rem;font-weight:700;color:#cfdcd4;margin-left:3px}
+.kpi .k-note{font-size:.82rem;color:#b9cdc2;margin-top:6px}
+
+/* 차트 카드 */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.chart-grid.r21{grid-template-columns:2fr 1fr}
+.chart-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:18px 20px 14px}
+.chart-card.wide{grid-column:1 / -1}
+.cc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:4px}
+.cc-head h3{font-size:1.02rem;font-weight:800;color:var(--green)}
+.cc-head h3::before{content:"";display:inline-block;width:9px;height:9px;background:var(--gold);border-radius:2px;margin-right:8px;vertical-align:1px}
+.cc-head .cc-note{font-size:.78rem;color:var(--ink-3)}
+.chart-box{position:relative;height:250px}
+.chart-box.tall{height:290px}
+.chart-box.short{height:200px}
+.stack-col{display:flex;flex-direction:column;gap:14px}
+
+/* 인사이트 박스 — 크림 배경 [제목] 스타일 */
+.insight{
+  background:var(--gold-bg);border:1px solid var(--gold-line);
+  border-radius:8px;padding:18px 22px;
+}
+.insight h3{font-size:1rem;font-weight:800;color:var(--green);margin-bottom:10px}
+.insight h3::before{content:"[ "} .insight h3::after{content:" ]"}
+.insight ul{list-style:none}
+.insight li{font-size:.95rem;color:var(--ink-2);padding:5px 0 5px 18px;position:relative;line-height:1.55}
+.insight li::before{content:"";position:absolute;left:3px;top:14px;width:6px;height:6px;background:var(--gold);border-radius:1px}
+.insight li b{color:var(--ink);font-weight:800}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.insight-grid .full{grid-column:1/-1}
+
+/* 리스크 태그 */
+.risk-tag{display:inline-block;font-size:.72rem;font-weight:800;border-radius:4px;padding:2px 9px;margin-left:7px;vertical-align:1px}
+.risk-tag.high{background:#fbefec;color:var(--brick);border:1px solid #eccfc5}
+.risk-tag.mid{background:#fdf6e2;color:#8a6a24;border:1px solid var(--gold-line)}
+.risk-tag.low{background:#eef7ef;color:#2c6e3f;border:1px solid #bcdcc2}
+
+/* 로드맵 3단 카드 */
+.roadmap-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rm{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden;display:flex;flex-direction:column}
+.rm .rm-head{color:#fff;font-weight:800;font-size:1rem;padding:11px 18px}
+.rm:nth-child(1) .rm-head{background:var(--grn-ok)}
+.rm:nth-child(2) .rm-head{background:var(--gold)}
+.rm:nth-child(3) .rm-head{background:var(--blue)}
+.rm .rm-body{padding:14px 18px;font-size:.92rem;color:var(--ink-2);flex:1;line-height:1.6}
+.rm .rm-effect{border-top:1px dashed var(--line);padding:10px 18px;font-size:.85rem;color:var(--blue);font-weight:700}
+.rm .rm-effect b{color:var(--ink-3);font-weight:800;margin-right:8px;font-size:.78rem}
+
+/* 푸터 바 */
+.dash-foot{
+  background:var(--green);color:#cfdcd4;
+  padding:13px 30px;display:flex;justify-content:space-between;font-size:.82rem;
+  border-top:3px solid var(--gold);
+}
+.dash-foot b{color:#fff}
+
+/* 자료 없음(빈 상태) */
+.empty-state{text-align:center;padding:64px 24px 72px}
+.empty-state .empty-ico{font-size:2.8rem;line-height:1;margin-bottom:14px;opacity:.85}
+.empty-state h3{font-size:1.2rem;color:var(--green);font-weight:800;margin-bottom:10px}
+.empty-state p{font-size:.94rem;color:var(--ink-3);max-width:540px;margin:0 auto;line-height:1.65}
+.empty-state p b{color:var(--ink-2);font-weight:700}
+
+@media (max-width:940px){
+  html{font-size:15px}
+  .kpi-grid,.kpi-grid.cols-3{grid-template-columns:repeat(2,1fr)}
+  .chart-grid,.chart-grid.r21,.insight-grid,.roadmap-row{grid-template-columns:1fr}
+  .mast-actions{position:static;margin-top:16px}
+  .kpi .k-value{font-size:2rem}
+}
+@media print{.masthead,.input-panel,.view-nav{display:none}body{background:#fff}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-row">
+    <div class="mast-star">★</div>
+    <div class="mast-title">고객 상세 분석 대시보드
+      <small>HOTEL THE BORN JEJU · 월간 인포그래픽</small>
+    </div>
+  </div>
+  <div class="mast-meta">
+    <span class="chip">보고 기간
+      <span class="period-picker">
+        <select id="selYear" class="mast-select" onchange="onPeriodChange()" aria-label="보고 연도 선택"><option value="2024">2024년</option><option value="2025">2025년</option><option value="2026" selected="">2026년</option><option value="2027">2027년</option></select>
+        <select id="selMonth" class="mast-select" onchange="onPeriodChange()" aria-label="보고 월 선택"><option value="1">1월</option><option value="2">2월</option><option value="3">3월</option><option value="4">4월</option><option value="5">5월</option><option value="6" selected="">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option></select>
+      </span>
+    </span>
+    <span class="chip">작성<b>호텔사업팀</b></span>
+    <span class="chip">데이터 원천<b id="metaSource">기본 샘플 데이터</b></span>
+    <span class="chip">발행일<b id="metaDate">2026. 6. 30.</b></span>
+  </div>
+  <div class="mast-actions">
+    <button class="btn" onclick="exportImage()">PNG 저장</button>
+    <button class="btn solid" onclick="exportPDF()">PDF 다운로드</button>
+  </div>
+</header>
+
+<section class="input-panel" style="display: none;">
+  <div class="panel-card">
+    <div class="input-head">
+      <h2>데이터 입력 · 3가지 방식 지원</h2>
+      <button class="toggle" id="panelToggle" onclick="togglePanel()">접기 ▲</button>
+    </div>
+    <div id="panelBody" style="">
+      <div class="input-tabs">
+        <button class="tab active" data-pane="paneFile" onclick="switchInput(this)">① 엑셀 / CSV 업로드</button>
+        <button class="tab" data-pane="paneImage" onclick="switchInput(this)">② 캡처 이미지 업로드 (AI 추출)</button>
+        <button class="tab" data-pane="paneJson" onclick="switchInput(this)">③ 데이터 직접 편집 (JSON)</button>
+      </div>
+      <div class="input-body">
+        <div class="target-select">
+          적용 대상 뷰:
+          <label><input type="radio" name="target" value="tammora" checked=""> 탐모라(조식)</label>
+          <label><input type="radio" name="target" value="rooms"> 객실 투숙</label>
+          <label><input type="radio" name="target" value="minibar"> 미니바</label>
+          <label><input type="radio" name="target" value="checkin"> 체크인 고객</label>
+          <label><input type="radio" name="target" value="auto"> AI 자동 판별</label>
+        </div>
+
+        <div class="input-pane active" id="paneFile">
+          <div class="drop" id="dropFile">
+            <b>XLSX / CSV 파일</b>을 끌어다 놓거나 클릭하여 선택하세요.<br>
+            <span class="hint">표준 양식 파일은 <b>AI 없이 즉시 매핑</b>됩니다. 자유 양식은 AI 매핑을 시도합니다(Claude 대화창 내 실행 시에만 동작).</span>
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+            <div><button class="pill-btn" onclick="document.getElementById(&#39;fileInput&#39;).click()">파일 선택</button></div>
+          </div>
+          <div style="margin-top:10px;font-size:.85rem;color:var(--ink-2)">
+            표준 양식 다운로드:
+            <button class="pill-btn ghost" style="margin:0 2px;padding:6px 14px" onclick="downloadTemplate(&#39;tammora&#39;)">탐모라(조식)</button>
+            <button class="pill-btn ghost" style="margin:0 2px;padding:6px 14px" onclick="downloadTemplate(&#39;rooms&#39;)">객실 투숙</button>
+            <button class="pill-btn ghost" style="margin:0 2px;padding:6px 14px" onclick="downloadTemplate(&#39;minibar&#39;)">미니바</button>
+            <button class="pill-btn ghost" style="margin:0 2px;padding:6px 14px" onclick="downloadTemplate(&#39;checkin&#39;)">체크인 고객</button>
+          </div>
+          <div class="status" id="fileStatus"></div>
+        </div>
+
+        <div class="input-pane" id="paneImage">
+          <div class="drop" id="dropImage">
+            PMS·리포트 <b>캡처 화면(PNG/JPG)</b>을 업로드하면 Vision AI가 수치를 자동 추출합니다.<br>
+            <span class="hint">표·텍스트가 선명할수록 정확도가 높습니다. 추출 후 ③ 탭에서 검증 가능. (Claude 대화창 내 실행 시에만 동작)</span>
+            <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp">
+            <div><button class="pill-btn" onclick="document.getElementById(&#39;imageInput&#39;).click()">이미지 선택</button></div>
+            <img id="imgPreview" class="preview-img" style="display:none" alt="업로드 미리보기">
+          </div>
+          <div class="status" id="imageStatus"></div>
+        </div>
+
+        <div class="input-pane" id="paneJson">
+          <p class="hint" style="margin:0 0 8px">현재 선택된 뷰의 데이터 스키마입니다. 값을 수정 후 적용하면 즉시 반영됩니다.</p>
+          <textarea class="json-edit" id="jsonEditor" spellcheck="false"></textarea>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="pill-btn" onclick="applyJson()">적용</button>
+            <button class="pill-btn ghost" onclick="loadJsonToEditor()">현재 데이터 불러오기</button>
+            <button class="pill-btn ghost" onclick="resetData()">샘플 데이터로 초기화</button>
+          </div>
+          <div class="status" id="jsonStatus"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="view-nav" role="tablist">
+  <button class="vtab active" data-view="tammora" onclick="switchView(this)">
+    <span class="vt-no">VIEW 01</span><span class="vt-name">탐모라 조식당</span><span class="vt-sub">이용 추이 · 날씨 · 세그먼트 · 확장</span>
+  </button>
+  <button class="vtab" data-view="rooms" onclick="switchView(this)">
+    <span class="vt-no">VIEW 02</span><span class="vt-name">객실 투숙 고객</span><span class="vt-sub">점유율 · 만족도 · 리뷰 토픽</span>
+  </button>
+  <button class="vtab" data-view="minibar" onclick="switchView(this)">
+    <span class="vt-no">VIEW 03</span><span class="vt-name">객실 미니바</span><span class="vt-sub">품목별 분출률 · 비용 · 반응</span>
+  </button>
+  <button class="vtab" data-view="checkin" onclick="switchView(this)">
+    <span class="vt-no">VIEW 04</span><span class="vt-name">체크인 고객</span><span class="vt-sub">체크인 시간 · 예약채널 · 지역 · 동반</span>
+  </button>
+</nav>
+
+<main class="dash-wrap">
+  <div class="dash" id="dashboard">
+    <div class="sec-head"><span class="sec-no">★</span><h2>탐모라 부문 핵심 요약 · 이용 추이</h2><span class="sec-note">2026년 6월</span></div>
+    <div class="dash-body">
+      <div class="kpi-grid">
+    <div class="kpi">
+      <div class="k-label">월 조식 이용</div>
+      <div class="k-value num">5,230<small>명</small></div>
+      <div class="k-note">일평균 174명</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">투숙객 조식 이용률</div>
+      <div class="k-value num">78.6<small>%</small></div>
+      <div class="k-note">전월 78.2% 대비 +0.4%p</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">최다 이용일</div>
+      <div class="k-value num">220<small>명</small></div>
+      <div class="k-note">6/21 · 최소 121명(6/9)</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">피크 시간</div>
+      <div class="k-value num">07~08시<small></small></div>
+      <div class="k-note">52.7% 집중</div>
+    </div></div>
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>일별 조식 이용 인원 추이</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chDaily" width="702" height="290" style="display: block; box-sizing: border-box; height: 290px; width: 702px;"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>시간대별 이용 분포</h3><span class="cc-note">%</span></div>
+            <div class="chart-box short"><canvas id="chHourly" width="330" height="200" style="display: block; box-sizing: border-box; height: 200px; width: 330px;"></canvas></div>
+          </div>
+          <div class="insight"><h3>혼잡도 진단</h3><ul><li>07~08시 <b>52.7% 집중</b> → 피크 1시간 좌석·인력 병목 <span class="risk-tag mid">리스크 중</span></li><li>09시 이후 <b>6.3%</b>로 완만 → 체크인 시 시간대 분산 안내로 완화 가능</li></ul></div>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="sec-no">1</span><h2>날씨별 · 요일별 이용 분석</h2></div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="cc-head"><h3>날씨별 평균 이용 인원 / 이용률</h3><span class="cc-note">명 · %</span></div>
+          <div class="chart-box"><canvas id="chWeather" width="516" height="250" style="display: block; box-sizing: border-box; height: 250px; width: 516px;"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>주중 / 주말 평균 이용</h3><span class="cc-note">이용률 78% vs 80.2%</span></div>
+            <div class="chart-box short"><canvas id="chWeek" width="516" height="200" style="display: block; box-sizing: border-box; height: 200px; width: 516px;"></canvas></div>
+          </div>
+          <div class="insight"><h3>날씨·요일 인사이트</h3><ul><li>흐린 날 <b>81.9% 최고</b> → 흐림·우천 시 좌석·식자재 증량</li><li>주말 <b>80.2%</b> ≈ 주중 78.0% → 6월은 요일 편차 축소, 평일 수요 견조</li></ul></div>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="sec-no">2</span><h2>고객 세그먼트 (이용객 구성)</h2></div>
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>연령대 × 성별 분포</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chAgeGender" width="702" height="290" style="display: block; box-sizing: border-box; height: 290px; width: 702px;"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>성별 구성</h3></div>
+            <div class="chart-box short"><canvas id="chGender" width="330" height="200" style="display: block; box-sizing: border-box; height: 200px; width: 330px;"></canvas></div>
+          </div>
+          <div class="insight"><h3>세그먼트 특징</h3><ul><li>30·40·50대 <b>68.6%</b> → 중장년 가족 중심</li><li>여성 <b>58.1%</b> → 여성 선호·건강식 구성 우위</li><li>초등이하 <b>8.9%</b> → 키즈 메뉴·가족석 수요</li></ul></div>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="sec-no">3</span><h2>확장 운영 분석 · 로드맵</h2></div>
+      <div class="kpi-grid cols-3">
+    <div class="kpi">
+      <div class="k-label">피크 1시간 집중도</div>
+      <div class="k-value num">52.7<small>%</small></div>
+      <div class="k-note">07~08시 최대 집중 구간</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">주말 이용률</div>
+      <div class="k-value num">80.2<small>%</small></div>
+      <div class="k-note">주중 78.0% 대비 +2.2%p</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">우천 시 이용률</div>
+      <div class="k-value num">79.1<small>%</small></div>
+      <div class="k-note">맑음 76.7% · 흐림 81.9%</div>
+    </div></div>
+      <div class="insight-grid">
+        <div class="insight full"><h3>데이터 기반 확장 포인트</h3><ul><li>병목 해소가 확장의 전제 — 07~08시 1시간에 52.7% 집중, 좌석 회전 한계. 증설보다 <b>'시간대 분산(체크인 시 권장 시간 배정)'</b>이 1차 해법</li><li>흐림·우천 수요 강세(79~82%)·주말 80% → 날씨·요일 연동 탄력 운영으로 식자재 손실↓·만족도↑ / 중장년·키즈·제주 로컬 메뉴로 객단가 견인</li></ul></div>
+      </div>
+      <div class="roadmap-row"><div class="rm"><div class="rm-head">단기 (3개월)</div><div class="rm-body">조식 시간대 분산 안내(체크인 시 배정) / 피크 인력·좌석·셋업 집중 / 우천·주말 식자재 탄력 발주</div><div class="rm-effect"><b>기대효과</b>피크 혼잡 완화 · 식자재 손실 절감</div></div><div class="rm"><div class="rm-head">중기 (1년)</div><div class="rm-body">중장년·키즈·제주 로컬 메뉴 개편 / 시간대 예약제 정식 운영 / 날씨·요일 연동 수요예측 발주 체계화</div><div class="rm-effect"><b>기대효과</b>수요 평준화 · 만족도 향상</div></div><div class="rm"><div class="rm-head">장기 (3년)</div><div class="rm-body">탐모라 독립 F&amp;B 브랜드화 / 데이터 기반 수요예측 발주 / 제주 가성비 미식 다이닝 거점화</div><div class="rm-effect"><b>기대효과</b>조식당의 독립 수익센터 전환</div></div></div>
+    </div>
+    <div class="dash-foot">
+    <span>호텔 더본 제주 · 호텔사업팀 | <b>월간 인포그래픽</b></span>
+    <span>2026년 6월 분석 · 대외비 · 2026. 6. 30. 발행</span></div></div>
+</main>
+<script>
+/* =========================================================
+   STATE : 3종 뷰 JSON 스키마 (첨부 보고서 2026년 5월 수치 반영)
+========================================================= */
+const DEFAULT_DATA = {
+  meta: { period: "2026년 5월", source: "기본 샘플 데이터" },
+
+  tammora: {
+    title: "탐모라(조식당) 고객 분석",
+    kpi: [
+      { label: "월 조식 이용", value: 5131, unit: "명", note: "일평균 166명" },
+      { label: "투숙객 조식 이용률", value: 78.2, unit: "%", note: "100명 중 78명 이용" },
+      { label: "최다 이용일", value: 251, unit: "명", note: "5/03 · 최소 90명" },
+      { label: "피크 시간", value: "07~08시", unit: "", note: "55.3% 집중" }
+    ],
+    dailyTrend: [215,205,251,240,203,138,122,120,111,90,143,110,108,192,155,178,170,205,155,143,115,120,160,236,205,227,185,125,115,205,160],
+    hourly: [
+      { label: "07~08시", pct: 55.3 }, { label: "08~09시", pct: 22.1 },
+      { label: "09~10시", pct: 8.2 }, { label: "06:30~07시", pct: 7.8 }, { label: "10시 이후", pct: 6.6 }
+    ],
+    weatherAvg: [ { label: "맑음", avg: 182 }, { label: "흐림", avg: 124 }, { label: "비", avg: 175 } ],
+    weatherRate: [ { label: "맑음", rate: 79.7 }, { label: "흐림", rate: 66.5 }, { label: "비", rate: 81.4 } ],
+    weekPattern: { weekdayAvg: 158, weekendAvg: 182, weekdayRate: 75.1, weekendRate: 84.5 },
+    ageGender: [
+      { label: "초등이하", male: 95, female: 68 }, { label: "10대", male: 22, female: 30 },
+      { label: "20대", male: 25, female: 40 }, { label: "30대", male: 215, female: 302 },
+      { label: "40대", male: 220, female: 282 }, { label: "50대", male: 220, female: 315 },
+      { label: "60대+", male: 78, female: 108 }
+    ],
+    gender: [ { label: "여성", pct: 56.8 }, { label: "남성", pct: 43.2 } ],
+    expansionKpi: [
+      { label: "피크 1시간 집중도", value: 55.3, unit: "%", note: "07~08시 최대 집중 구간" },
+      { label: "주말 이용률", value: 84.5, unit: "%", note: "주중 75.1% 대비 +9.4%p" },
+      { label: "우천 시 이용률", value: 81.4, unit: "%", note: "맑음 79.7% · 흐림 66.5%" }
+    ],
+    insights: {
+      congestion: [
+        "07~08시 <b>55.3% 집중</b> → 피크 1시간 좌석·인력 병목 <span class='risk-tag mid'>리스크 중</span>",
+        "09시 이후 <b>14.8%</b>로 완만 → 체크인 시 시간대 분산 안내로 완화 가능"
+      ],
+      weather: [
+        "비 오는 날 <b>81.4% 최고</b> → 우천 시 좌석·식자재 증량",
+        "주말 <b>84.5%</b> &gt; 주중 75.1% → 주말 인력 보강·발주 연동"
+      ],
+      segment: [
+        "30·40·50대 <b>76.8%</b> → 중장년 가족 중심",
+        "여성 <b>56.8%</b> → 여성 선호·건강식 구성 우위",
+        "초등이하 <b>8.0%</b> → 키즈 메뉴·가족석 수요"
+      ],
+      expansion: [
+        "병목 해소가 확장의 전제 — 07~08시 1시간에 55.3% 집중, 좌석 회전 한계. 증설보다 <b>'시간대 분산(체크인 시 권장 시간 배정)'</b>이 1차 해법",
+        "우천·주말 수요 강세(81~84%) → 날씨·요일 연동 탄력 운영으로 식자재 손실↓·만족도↑ / 중장년·키즈·제주 로컬 메뉴로 객단가 견인"
+      ],
+      roadmap: {
+        short:  { text: "조식 시간대 분산 안내(체크인 시 배정) / 피크 인력·좌석·셋업 집중 / 우천·주말 식자재 탄력 발주", effect: "피크 혼잡 완화 · 식자재 손실 절감" },
+        mid:    { text: "중장년·키즈·제주 로컬 메뉴 개편 / 시간대 예약제 정식 운영 / 날씨·요일 연동 수요예측 발주 체계화", effect: "수요 평준화 · 만족도 향상" },
+        long:   { text: "탐모라 독립 F&B 브랜드화 / 데이터 기반 수요예측 발주 / 제주 가성비 미식 다이닝 거점화", effect: "조식당의 독립 수익센터 전환" }
+      }
+    }
+  },
+
+  rooms: {
+    title: "객실 투숙 고객 분석",
+    kpi: [
+      { label: "객실 점유율(OCC)", value: 64.0, unit: "%", note: "목표 80% 대비 -16.0%p" },
+      { label: "판매 객실 수", value: 2534, unit: "실", note: "가용 132실 × 30일" },
+      { label: "전반 만족도", value: 4.4, unit: "/5", note: "전월 4.3 대비 +0.1" },
+      { label: "리뷰 작성 건수", value: 182, unit: "건", note: "작성률 7.2%" }
+    ],
+    topicsPositive: [
+      { label: "조식(탐모라) 품질", pct: 42 }, { label: "미니바 무료 제공", pct: 33 },
+      { label: "직원 응대 친절", pct: 29 }, { label: "청결 상태", pct: 24 }, { label: "위치·접근성", pct: 18 }
+    ],
+    topicsNegative: [
+      { label: "객실 시설 노후화", pct: 37 }, { label: "공사 소음", pct: 22 },
+      { label: "방음 미흡", pct: 15 }, { label: "주차 혼잡", pct: 11 }, { label: "체크인 대기", pct: 8 }
+    ],
+    insights: {
+      diagnosis: [
+        "<b>강점(조식·미니바·응대)은 유지</b> 구간 — F&B 앵커 전략이 리뷰 긍정 토픽 1·2위 견인",
+        "부정 토픽 1위 <b>시설 노후화 37%</b> — 리뉴얼 완료 전까지 소프트웨어(어메니티·서비스)로 방어 <span class='risk-tag high'>리스크 상</span>",
+        "공사 소음 언급 22% — 사전 고지 + 미니바 13종 무료 보상 체계의 노출 강화 필요 <span class='risk-tag mid'>리스크 중</span>"
+      ],
+      roadmap: {
+        short: { text: "부정 리뷰 24시간 내 공식 응대율 100% 유지 / 공사층 인접 객실 판매 후순위 배정", effect: "부정 확산 차단 · 평점 방어" },
+        mid:   { text: "리뉴얼 완료 객실 우선 노출 상품(뉴룸 패키지) 구성 — ADR 방어 원칙 하 부가가치 차별화", effect: "ADR 유지 · 전환율 개선" },
+        long:  { text: "152실 체제(2027.5) 전환 시 만족도 4.6/5 · OCC 85% 동시 달성 로드맵 수립", effect: "제주 내 최고 경쟁력 확보" }
+      }
+    }
+  },
+
+  minibar: {
+    title: "객실 미니바 이용 데이터 분석",
+    kpi: [
+      { label: "스낵류 평균 분출률", value: 80.4, unit: "%", note: "전 품목 무료 제공 13종" },
+      { label: "주요 음료 분출률", value: 64.9, unit: "%", note: "빽다방 연유라떼 (신규)" },
+      { label: "월 예상 지출 비용", value: 1240, unit: "만원", note: "객실당 평균 4,890원" },
+      { label: "미니바 고객 반응", value: "긍정", unit: "", note: "관련 리뷰 33% 긍정 언급" }
+    ],
+    items: [
+      { label: "허니버터아몬드", cat: "스낵", rate: 85.3 },
+      { label: "하리보", cat: "스낵", rate: 83.2 },
+      { label: "감자칩", cat: "스낵", rate: 79.8 },
+      { label: "초코쿠키", cat: "스낵", rate: 73.4 },
+      { label: "빽다방 연유라떼", cat: "음료", rate: 64.9 },
+      { label: "생수", cat: "음료", rate: 61.2 },
+      { label: "제주 감귤주스", cat: "음료", rate: 47.5 },
+      { label: "탄산수", cat: "음료", rate: 38.1 },
+      { label: "아이긴 상콤토닉", cat: "음료", rate: 24.7 }
+    ],
+    insights: {
+      reviews: [
+        "<b>\"푸짐한 무료 제공\"</b> — 미니바 관련 리뷰의 핵심 키워드, 가성비 인식 형성의 1등 공신",
+        "<b>\"객실 만족도 향상 견인\"</b> — 시설 노후 부정 인식을 상쇄하는 보상 요소로 작동",
+        "SNS 자발적 인증(언박싱형 콘텐츠) 발생 — 인플루언서 협업 콘텐츠와 시너지 확인"
+      ],
+      operations: [
+        "신규 <b>빽다방 연유라떼 64.9%</b> 진입 — 기존 감귤주스 분출률 <b>-6.2%p</b> 잠식, 총 분출량 순증 여부 익월 검증",
+        "<b>아이긴 상콤토닉 24.7%</b> 최하위 — 재고회전 저조, 퇴출 후 빽다방 라인업 추가 검토 <span class='risk-tag low'>리스크 하</span>",
+        "인플루언서 협업 노출 → 예약 유도 효과: 추적 링크 기반 전환 측정 체계로 ROI 정량화 진행"
+      ],
+      roadmap: {
+        short: { text: "하위 분출률(30% 미만) 품목 1종 교체 / 객실당 비용 5,000원 상한 유지", effect: "비용 통제 · 만족도 유지" },
+        mid:   { text: "빽다방·더본 F&B 자사 품목 비중 60%로 확대 — 원가 절감 + 브랜드 각인 이중 효과", effect: "원가율 개선 · 브랜드 노출" },
+        long:  { text: "미니바를 자사 브랜드 체험 채널로 정착 / 퇴실 후 온라인몰 구매 전환 파이프라인 구축", effect: "체험→구매 전환 수익화" }
+      }
+    }
+  },
+
+  checkin: {
+    title: "체크인 고객 방문자 데이터 분석",
+    kpi: [
+      { label: "월 방문자 수", value: 1700, unit: "명", note: "일평균 약 55명" },
+      { label: "여성 방문 비중", value: 54.0, unit: "%", note: "남성 대비 우세" },
+      { label: "가족 동반 비중", value: 58.0, unit: "%", note: "동반유형 중 1위" },
+      { label: "자녀 동반 비율", value: 22.0, unit: "%", note: "영유아·초등 동반 합산" }
+    ],
+    dailyTrend: [
+      60,68,72,58,50,48,45,62,70,20,45,78,64,38,40,74,50,47,36,50,
+      34,55,37,52,54,74,60,50,42,70,39
+    ],
+    age: [
+      { label: "20대", pct: 9.0 }, { label: "30대", pct: 29.0 },
+      { label: "40대", pct: 31.0 }, { label: "50대", pct: 24.0 }, { label: "60대+", pct: 7.0 }
+    ],
+    gender: [
+      { label: "여성", pct: 54.0 }, { label: "남성", pct: 46.0 }
+    ],
+    companion: [
+      { label: "커플", pct: 26.0 }, { label: "가족", pct: 58.0 },
+      { label: "친구·지인", pct: 12.0 }, { label: "혼자", pct: 3.0 }, { label: "단체", pct: 1.0 }
+    ],
+    groupSize: [
+      { label: "1인", pct: 3.0 }, { label: "2인", pct: 47.0 },
+      { label: "3~4인", pct: 47.0 }, { label: "5인+", pct: 3.0 }
+    ],
+    childType: [
+      { label: "영유아 동반", pct: 7.0 }, { label: "초등 동반", pct: 16.0 }, { label: "자녀 없음", pct: 77.0 }
+    ],
+    insights: {
+      visitor: [
+        "월 총 방문자 <b>1,700명 내외</b>, 일별 편차가 큰 편",
+        "동반유형은 <b>가족</b>이 가장 큰 비중을 차지"
+      ],
+      segment: [
+        "30~50대가 방문자의 대부분을 차지",
+        "여성 방문 비중이 남성보다 다소 높음"
+      ],
+      summary: [
+        "동반 인원수는 2인·3~4인이 대부분으로, 소그룹 동반 방문 중심",
+        "자녀 동반 비율은 가족 동반 비중보다 낮아, 성인 가족 단위 방문도 상당수로 추정"
+      ],
+      roadmap: {
+        short: { text: "가족 단위 동반 방문에 맞춘 웰컴 서비스 점검", effect: "가족 고객 만족도 제고" },
+        mid:   { text: "자녀 동반 가족 대상 키즈 프로그램·어메니티 검토", effect: "가족·중장년 고객층 재방문 유도" },
+        long:  { text: "체크인시간대·예약채널 등 PMS 데이터 연동 체계 구축", effect: "데이터 기반 고객 관리 고도화" }
+      }
+    }
+  }
+};
+
+const clone = v => JSON.parse(JSON.stringify(v));
+
+/* ▼▼▼▼▼ 매월 갱신 지점 (여기만 편집하면 됩니다) ▼▼▼▼▼
+   DEFAULT_MONTH : 접속 시 기본으로 열리는 달. 보통 최신 달로 바꿉니다.
+   EXTRA_MONTHS  : 2026-05 이후 매월의 실제 데이터를 여기에 추가합니다.
+     형식) "YYYY-MM": { tammora:{...}, rooms:{...}, minibar:{...}, checkin:{...} }
+     - 넣은 월/뷰만 표시되고, 넣지 않은 월·뷰는 '자료 없음'으로 나옵니다.
+     - 한 뷰만 넣어도 됩니다. 예) "2026-06": { checkin:{...} }
+*/
+const DEFAULT_MONTH = "2026-07";
+const EXTRA_MONTHS = {
+
+  "2026-06": {
+    "tammora": {
+      "kpi": [
+        {
+          "label": "월 조식 이용",
+          "value": 5230,
+          "unit": "명",
+          "note": "일평균 174명"
+        },
+        {
+          "label": "투숙객 조식 이용률",
+          "value": 78.6,
+          "unit": "%",
+          "note": "전월 78.2% 대비 +0.4%p"
+        },
+        {
+          "label": "최다 이용일",
+          "value": 220,
+          "unit": "명",
+          "note": "6/21 · 최소 121명(6/9)"
+        },
+        {
+          "label": "피크 시간",
+          "value": "07~08시",
+          "unit": "",
+          "note": "52.7% 집중"
+        }
+      ],
+      "dailyTrend": [
+        176,
+        205,
+        217,
+        192,
+        184,
+        188,
+        157,
+        141,
+        121,
+        160,
+        137,
+        171,
+        156,
+        216,
+        196,
+        156,
+        162,
+        144,
+        195,
+        210,
+        220,
+        203,
+        133,
+        162,
+        176,
+        186,
+        161,
+        178,
+        161,
+        166
+      ],
+      "hourly": [
+        {
+          "label": "07~08시",
+          "pct": 52.7
+        },
+        {
+          "label": "08:00~08:30",
+          "pct": 23.6
+        },
+        {
+          "label": "08:30~08:45",
+          "pct": 9.7
+        },
+        {
+          "label": "08:45~09시",
+          "pct": 7.6
+        },
+        {
+          "label": "09시~마감",
+          "pct": 6.3
+        }
+      ],
+      "weatherAvg": [
+        {
+          "label": "맑음",
+          "avg": 177
+        },
+        {
+          "label": "흐림",
+          "avg": 171
+        },
+        {
+          "label": "비",
+          "avg": 171
+        }
+      ],
+      "weatherRate": [
+        {
+          "label": "맑음",
+          "rate": 76.7
+        },
+        {
+          "label": "흐림",
+          "rate": 81.9
+        },
+        {
+          "label": "비",
+          "rate": 79.1
+        }
+      ],
+      "weekPattern": {
+        "weekdayAvg": 170,
+        "weekendAvg": 186,
+        "weekdayRate": 78.0,
+        "weekendRate": 80.2
+      },
+      "ageGender": [
+        {
+          "label": "초등이하",
+          "male": 250,
+          "female": 217
+        },
+        {
+          "label": "10대",
+          "male": 40,
+          "female": 86
+        },
+        {
+          "label": "20대",
+          "male": 110,
+          "female": 161
+        },
+        {
+          "label": "30대",
+          "male": 472,
+          "female": 607
+        },
+        {
+          "label": "40대",
+          "male": 546,
+          "female": 787
+        },
+        {
+          "label": "50대",
+          "male": 444,
+          "female": 731
+        },
+        {
+          "label": "60대+",
+          "male": 327,
+          "female": 452
+        }
+      ],
+      "gender": [
+        {
+          "label": "여성",
+          "pct": 58.1
+        },
+        {
+          "label": "남성",
+          "pct": 41.9
+        }
+      ],
+      "expansionKpi": [
+        {
+          "label": "피크 1시간 집중도",
+          "value": 52.7,
+          "unit": "%",
+          "note": "07~08시 최대 집중 구간"
+        },
+        {
+          "label": "주말 이용률",
+          "value": 80.2,
+          "unit": "%",
+          "note": "주중 78.0% 대비 +2.2%p"
+        },
+        {
+          "label": "우천 시 이용률",
+          "value": 79.1,
+          "unit": "%",
+          "note": "맑음 76.7% · 흐림 81.9%"
+        }
+      ],
+      "insights": {
+        "congestion": [
+          "07~08시 <b>52.7% 집중</b> → 피크 1시간 좌석·인력 병목 <span class='risk-tag mid'>리스크 중</span>",
+          "09시 이후 <b>6.3%</b>로 완만 → 체크인 시 시간대 분산 안내로 완화 가능"
+        ],
+        "weather": [
+          "흐린 날 <b>81.9% 최고</b> → 흐림·우천 시 좌석·식자재 증량",
+          "주말 <b>80.2%</b> ≈ 주중 78.0% → 6월은 요일 편차 축소, 평일 수요 견조"
+        ],
+        "segment": [
+          "30·40·50대 <b>68.6%</b> → 중장년 가족 중심",
+          "여성 <b>58.1%</b> → 여성 선호·건강식 구성 우위",
+          "초등이하 <b>8.9%</b> → 키즈 메뉴·가족석 수요"
+        ],
+        "expansion": [
+          "병목 해소가 확장의 전제 — 07~08시 1시간에 52.7% 집중, 좌석 회전 한계. 증설보다 <b>'시간대 분산(체크인 시 권장 시간 배정)'</b>이 1차 해법",
+          "흐림·우천 수요 강세(79~82%)·주말 80% → 날씨·요일 연동 탄력 운영으로 식자재 손실↓·만족도↑ / 중장년·키즈·제주 로컬 메뉴로 객단가 견인"
+        ],
+        "roadmap": {
+          "short": {
+            "text": "조식 시간대 분산 안내(체크인 시 배정) / 피크 인력·좌석·셋업 집중 / 우천·주말 식자재 탄력 발주",
+            "effect": "피크 혼잡 완화 · 식자재 손실 절감"
+          },
+          "mid": {
+            "text": "중장년·키즈·제주 로컬 메뉴 개편 / 시간대 예약제 정식 운영 / 날씨·요일 연동 수요예측 발주 체계화",
+            "effect": "수요 평준화 · 만족도 향상"
+          },
+          "long": {
+            "text": "탐모라 독립 F&B 브랜드화 / 데이터 기반 수요예측 발주 / 제주 가성비 미식 다이닝 거점화",
+            "effect": "조식당의 독립 수익센터 전환"
+          }
+        }
+      }
+    },
+    "rooms": {
+      "kpi": [
+        {
+          "label": "객실 점유율(OCC)",
+          "value": 69.4,
+          "unit": "%",
+          "note": "전월 64.0% 대비 +5.4%p"
+        },
+        {
+          "label": "전반 만족도",
+          "value": 4.5,
+          "unit": "/5",
+          "note": "직원친절 4.6 · 침구 4.7"
+        },
+        {
+          "label": "리뷰 작성",
+          "value": 44,
+          "unit": "건",
+          "note": "방문 2,641실 · 작성률 1.6%"
+        },
+        {
+          "label": "재방문 의향",
+          "value": 4.6,
+          "unit": "/5",
+          "note": "지인 추천 8.9/10"
+        }
+      ],
+      "satisfaction": [
+        {
+          "label": "음료·스낵(미니바)",
+          "score": 4.8
+        },
+        {
+          "label": "침구류 청결·편안함",
+          "score": 4.7
+        },
+        {
+          "label": "웰컴쿠폰 혜택",
+          "score": 4.7
+        },
+        {
+          "label": "직원 친절도",
+          "score": 4.6
+        },
+        {
+          "label": "전반 만족도",
+          "score": 4.5
+        },
+        {
+          "label": "객실 청결",
+          "score": 4.5
+        },
+        {
+          "label": "객실 편의시설",
+          "score": 4.5
+        },
+        {
+          "label": "조식(탐모라)",
+          "score": 4.5
+        },
+        {
+          "label": "웰컴쿠폰 편리성",
+          "score": 4.5
+        },
+        {
+          "label": "직원 안내·응대",
+          "score": 4.4
+        }
+      ],
+      "visitPurpose": [
+        {
+          "label": "가족여행",
+          "pct": 81.8
+        },
+        {
+          "label": "비즈니스",
+          "pct": 11.3
+        },
+        {
+          "label": "커플여행",
+          "pct": 4.4
+        },
+        {
+          "label": "기타",
+          "pct": 2.2
+        }
+      ],
+      "roomType": [
+        {
+          "label": "디럭스 트리플",
+          "pct": 52.5
+        },
+        {
+          "label": "디럭스 패밀리",
+          "pct": 22.0
+        },
+        {
+          "label": "스탠다드 더블",
+          "pct": 20.0
+        },
+        {
+          "label": "주니어 스위트",
+          "pct": 4.5
+        }
+      ],
+      "topicsPositive": [
+        {
+          "label": "미니바·쿠폰 혜택",
+          "pct": 30
+        },
+        {
+          "label": "조식·F&B",
+          "pct": 23
+        },
+        {
+          "label": "접근성·가성비",
+          "pct": 20
+        },
+        {
+          "label": "청결·위생",
+          "pct": 18
+        },
+        {
+          "label": "직원 서비스·친절",
+          "pct": 14
+        }
+      ],
+      "topicsNegative": [
+        {
+          "label": "객실 시설·가전",
+          "pct": 30
+        },
+        {
+          "label": "청결·위생 관리",
+          "pct": 18
+        },
+        {
+          "label": "주차·실외 편의",
+          "pct": 18
+        },
+        {
+          "label": "식음료·연계 식당",
+          "pct": 18
+        },
+        {
+          "label": "프론트 응대",
+          "pct": 16
+        }
+      ],
+      "insights": {
+        "diagnosis": [
+          "<b>강점 유지</b> — 미니바(4.8)·침구(4.7)·웰컴쿠폰(4.7) 등 F&B·어메니티 만족도 최상위, 재방문 의향 4.6/5",
+          "부정 1위 <b>객실 시설·가전 30%</b>(냉장고·TV·콘센트·배수) — 리뉴얼 전까지 어메니티·서비스로 방어 <span class='risk-tag high'>리스크 상</span>",
+          "<b>가족여행 81.8% · 디럭스 트리플 52.5%</b> 편중 → 가족 특화 상품·트리플 객실 컨디션 우선 관리",
+          "리뷰 작성률 <b>1.6%</b>로 하락(전월 2.0%) → 만족 고객 리뷰 유도(체크아웃 안내·쿠폰) 강화 <span class='risk-tag mid'>리스크 중</span>"
+        ],
+        "roadmap": {
+          "short": {
+            "text": "부정 리뷰 24시간 내 공식 응대 100% / 객실 가전·배수·콘센트 우선 점검·정비 / 체크아웃 시 리뷰 작성 안내 강화",
+            "effect": "부정 확산 차단 · 리뷰 참여율↑"
+          },
+          "mid": {
+            "text": "가족여행·디럭스 트리플 특화 패키지 구성 / 노후 가전 순차 교체 / 프론트 응대 표준화 교육",
+            "effect": "만족도 · 재방문 견인"
+          },
+          "long": {
+            "text": "리뉴얼 완료 객실 우선 노출(뉴룸 패키지) / 만족도 4.7 · OCC 85% 동시 달성 로드맵",
+            "effect": "제주 내 최고 경쟁력 확보"
+          }
+        }
+      }
+    },
+    "minibar": {
+      "kpi": [
+        {
+          "label": "평균 분출률",
+          "value": 62,
+          "unit": "%",
+          "note": "전 품목 무료 제공 14종"
+        },
+        {
+          "label": "스낵류 평균 분출률",
+          "value": 81.6,
+          "unit": "%",
+          "note": "최고 허니버터아몬드 85.3%"
+        },
+        {
+          "label": "월 총 운영비",
+          "value": 3415,
+          "unit": "만원",
+          "note": "객실당 평균 13,011원"
+        },
+        {
+          "label": "미니바 고객 반응",
+          "value": "긍정",
+          "unit": "",
+          "note": "무료 제공 만족 · 리뷰 다수 언급"
+        }
+      ],
+      "items": [
+        {
+          "label": "머거본 허니버터아몬드",
+          "cat": "스낵",
+          "rate": 85.3
+        },
+        {
+          "label": "하리보 골드베렌",
+          "cat": "스낵",
+          "rate": 83.2
+        },
+        {
+          "label": "블랙트러플 포테이토칩",
+          "cat": "스낵",
+          "rate": 82.7
+        },
+        {
+          "label": "제주한라봉 샌드웨이퍼",
+          "cat": "스낵",
+          "rate": 80.8
+        },
+        {
+          "label": "보석귤",
+          "cat": "스낵",
+          "rate": 79.2
+        },
+        {
+          "label": "벚꽃블라썸 샌드웨이퍼",
+          "cat": "스낵",
+          "rate": 78.5
+        },
+        {
+          "label": "제주감귤 프로바이오틱스",
+          "cat": "음료",
+          "rate": 76.6
+        },
+        {
+          "label": "빽다방 연유라떼",
+          "cat": "음료",
+          "rate": 64.9
+        },
+        {
+          "label": "아이긴 애플시트러스",
+          "cat": "음료",
+          "rate": 57.6
+        },
+        {
+          "label": "아이긴 애플피치",
+          "cat": "음료",
+          "rate": 54.0
+        },
+        {
+          "label": "분다버그 트로피컬망고",
+          "cat": "음료",
+          "rate": 36.6
+        },
+        {
+          "label": "분다버그 핑크자몽",
+          "cat": "음료",
+          "rate": 35.7
+        },
+        {
+          "label": "아이긴 핑콤토닉",
+          "cat": "음료",
+          "rate": 32.0
+        },
+        {
+          "label": "아이긴 상콤토닉",
+          "cat": "음료",
+          "rate": 24.7
+        }
+      ],
+      "insights": {
+        "reviews": [
+          "<b>\"푸짐한 무료 미니바 제공 감사합니다\"</b> — 무료 제공 만족이 6월 체크아웃 리뷰에서 반복 확인",
+          "<b>\"미니바가 만족스러웠습니다\"</b> — 객실 서비스 장점으로 미니바를 함께 언급, 만족도 향상에 긍정 기여",
+          "매트리스·조식·쿠폰과 함께 <b>미니바가 재방문·추천 요인</b>으로 작동 — 가성비 인식의 핵심"
+        ],
+        "operations": [
+          "신규 <b>빽다방 연유라떼 64.9%</b>(객실당 2EA) — 아이긴·분다버그 음료 각 1종 대체 운영, 아이긴 음료류(상콤 24.7%·핑콤 32.0%) 하락에 영향",
+          "스낵류 강세 <b>허니버터아몬드 85.3%·하리보 83.2%·포테이토칩 82.7%</b> — 상위 스낵 재고·발주 안정화 우선",
+          "하위 <b>아이긴 상콤토닉 24.7%</b> 최저 — 재고회전 저조, 라인업 조정 검토 <span class='risk-tag low'>리스크 하</span>",
+          "6월 파손 <b>34EA</b>(아이긴 애플피치 15·시트러스 12 등) — 입고·세팅 취급 개선·완충 포장 필요 <span class='risk-tag mid'>리스크 중</span>"
+        ],
+        "roadmap": {
+          "short": {
+            "text": "파손 다발 품목(아이긴 애플피치·시트러스) 입고·세팅 취급 개선 / 하위 분출 음료 1종 조정 검토",
+            "effect": "파손 손실↓ · 재고 효율"
+          },
+          "mid": {
+            "text": "빽다방·자사 F&B 품목 비중 확대 — 원가 절감 + 브랜드 각인 / 스낵 상위 라인 강화",
+            "effect": "원가율 개선 · 브랜드 노출"
+          },
+          "long": {
+            "text": "미니바를 자사 브랜드 체험 채널로 정착 / 퇴실 후 온라인몰 구매 전환 파이프라인 구축",
+            "effect": "체험→구매 전환 수익화"
+          }
+        }
+      }
+    }
+  },
+
+  "2026-07": {
+    "tammora": {
+      "kpi": [
+        {
+          "label": "월 조식 이용",
+          "value": 5766,
+          "unit": "명",
+          "note": "일평균 186명"
+        },
+        {
+          "label": "투숙객 조식 이용률",
+          "value": 82.1,
+          "unit": "%",
+          "note": "전월 78.6% 대비 +3.5%p"
+        },
+        {
+          "label": "최다 이용일",
+          "value": 260,
+          "unit": "명",
+          "note": "7/29 · 최소 112명(7/2)"
+        },
+        {
+          "label": "피크 시간",
+          "value": "07~08시",
+          "unit": "",
+          "note": "44.9% 집중"
+        }
+      ],
+      "dailyTrend": [
+        114,
+        112,
+        114,
+        208,
+        208,
+        178,
+        162,
+        150,
+        164,
+        166,
+        195,
+        160,
+        170,
+        178,
+        147,
+        152,
+        202,
+        225,
+        203,
+        133,
+        161,
+        159,
+        201,
+        206,
+        237,
+        239,
+        240,
+        258,
+        260,
+        231,
+        233
+      ],
+      "hourly": [
+        {
+          "label": "07~08시",
+          "pct": 44.9
+        },
+        {
+          "label": "08:00~08:30",
+          "pct": 27.3
+        },
+        {
+          "label": "08:30~08:45",
+          "pct": 12.7
+        },
+        {
+          "label": "08:45~09시",
+          "pct": 7.8
+        },
+        {
+          "label": "09시~마감",
+          "pct": 7.3
+        }
+      ],
+      "weatherAvg": [
+        {
+          "label": "맑음",
+          "avg": 222
+        },
+        {
+          "label": "흐림",
+          "avg": 159
+        },
+        {
+          "label": "비",
+          "avg": 164
+        }
+      ],
+      "weatherRate": [
+        {
+          "label": "맑음",
+          "rate": 86.4
+        },
+        {
+          "label": "흐림",
+          "rate": 76.7
+        },
+        {
+          "label": "비",
+          "rate": 80.5
+        }
+      ],
+      "weekPattern": {
+        "weekdayAvg": 178,
+        "weekendAvg": 209,
+        "weekdayRate": 80.4,
+        "weekendRate": 84.4
+      },
+      "ageGender": [
+        {
+          "label": "초등이하",
+          "male": 326,
+          "female": 256
+        },
+        {
+          "label": "10대",
+          "male": 174,
+          "female": 196
+        },
+        {
+          "label": "20대",
+          "male": 160,
+          "female": 216
+        },
+        {
+          "label": "30대",
+          "male": 536,
+          "female": 665
+        },
+        {
+          "label": "40대",
+          "male": 578,
+          "female": 758
+        },
+        {
+          "label": "50대",
+          "male": 509,
+          "female": 679
+        },
+        {
+          "label": "60대+",
+          "male": 292,
+          "female": 421
+        }
+      ],
+      "gender": [
+        {
+          "label": "여성",
+          "pct": 55.3
+        },
+        {
+          "label": "남성",
+          "pct": 44.7
+        }
+      ],
+      "expansionKpi": [
+        {
+          "label": "피크 1시간 집중도",
+          "value": 44.9,
+          "unit": "%",
+          "note": "07~08시 최대 집중 구간"
+        },
+        {
+          "label": "주말 이용률",
+          "value": 84.4,
+          "unit": "%",
+          "note": "주중 80.4% 대비 +4.0%p"
+        },
+        {
+          "label": "우천 시 이용률",
+          "value": 80.5,
+          "unit": "%",
+          "note": "맑음 86.4% · 흐림 76.7%"
+        }
+      ],
+      "insights": {
+        "congestion": [
+          "07~08시 <b>44.9% 집중</b> → 피크 1시간 좌석·인력 병목 지속 <span class='risk-tag mid'>리스크 중</span>",
+          "09시 이후 <b>7.3%</b>로 완만 → 체크인 시 시간대 분산 안내로 완화 가능"
+        ],
+        "weather": [
+          "맑은 날 <b>86.4% 최고</b> → 7월 맑음 13일 집중, 성수기 인력·좌석 배치 기준 상향 필요",
+          "주말 <b>84.4%</b> &gt; 주중 80.4% → 주말 인력·식자재 보강 지속"
+        ],
+        "segment": [
+          "30·40·50대 <b>72.6%</b> → 중장년 가족 중심",
+          "여성 <b>55.3%</b> → 여성 선호·건강식 구성 우위",
+          "초등이하 <b>10.1%</b> → 키즈 메뉴·가족석 수요 증가"
+        ],
+        "expansion": [
+          "병목 해소가 확장의 전제 — 07~08시 1시간에 44.9% 집중, 좌석 회전 한계. 증설보다 <b>'시간대 분산(체크인 시 권장 시간 배정)'</b>이 1차 해법",
+          "맑음·주말 수요 강세(84~86%) → 날씨·요일 연동 탄력 운영으로 식자재 손실↓·만족도↑ / 중장년·키즈·제주 로컬 메뉴로 객단가 견인"
+        ],
+        "roadmap": {
+          "short": {
+            "text": "조식 시간대 분산 안내(체크인 시 배정) / 피크(07~08:30) 인력·좌석 집중 배치 / 성수기 식자재 발주량 상향",
+            "effect": "피크 혼잡 완화 · 식자재 손실 절감"
+          },
+          "mid": {
+            "text": "중장년·키즈·제주 로컬 메뉴 개편 / 시간대 예약제 정식 운영 / 후반시간대(8:45~) 외부객 브런치 시범 도입",
+            "effect": "수요 평준화 · 유휴 좌석 수익화"
+          },
+          "long": {
+            "text": "탐모라 독립 F&B 브랜드화 / 데이터 기반 수요예측 발주 / 제주 가성비 미식 다이닝 거점화",
+            "effect": "조식당의 독립 수익센터 전환"
+          }
+        }
+      }
+    },
+    "rooms": {
+      "kpi": [
+        {
+          "label": "객실 점유율(OCC)",
+          "value": 80.0,
+          "unit": "%",
+          "note": "전월 69.4% 대비 +10.6%p"
+        },
+        {
+          "label": "전반 만족도",
+          "value": 4.6,
+          "unit": "/5",
+          "note": "직원친절 4.7 · 침구 4.8"
+        },
+        {
+          "label": "리뷰 작성",
+          "value": 64,
+          "unit": "건",
+          "note": "방문 2,845실 · 작성률 2.2%"
+        },
+        {
+          "label": "재방문 의향",
+          "value": 4.8,
+          "unit": "/5",
+          "note": "지인 추천 8.8/10"
+        }
+      ],
+      "satisfaction": [
+        {
+          "label": "침구류 청결·편안함",
+          "score": 4.8
+        },
+        {
+          "label": "웰컴쿠폰 혜택",
+          "score": 4.8
+        },
+        {
+          "label": "음료·스낵(미니바)",
+          "score": 4.8
+        },
+        {
+          "label": "직원 친절도",
+          "score": 4.7
+        },
+        {
+          "label": "전반 만족도",
+          "score": 4.6
+        },
+        {
+          "label": "객실 청결",
+          "score": 4.6
+        },
+        {
+          "label": "객실 편의시설",
+          "score": 4.6
+        },
+        {
+          "label": "직원 안내·응대",
+          "score": 4.5
+        },
+        {
+          "label": "공용공간 위생",
+          "score": 4.5
+        },
+        {
+          "label": "조식(탐모라)",
+          "score": 4.5
+        }
+      ],
+      "visitPurpose": [
+        {
+          "label": "가족여행",
+          "pct": 70.3
+        },
+        {
+          "label": "비즈니스",
+          "pct": 15.6
+        },
+        {
+          "label": "커플여행",
+          "pct": 12.4
+        },
+        {
+          "label": "기타",
+          "pct": 1.5
+        }
+      ],
+      "roomType": [
+        {
+          "label": "디럭스 트리플",
+          "pct": 62.5
+        },
+        {
+          "label": "스탠다드 더블",
+          "pct": 23.4
+        },
+        {
+          "label": "디럭스 패밀리",
+          "pct": 10.9
+        },
+        {
+          "label": "주니어 스위트",
+          "pct": 3.1
+        }
+      ],
+      "topicsPositive": [
+        {
+          "label": "조식·F&B",
+          "pct": 58
+        },
+        {
+          "label": "직원 서비스·친절",
+          "pct": 36
+        },
+        {
+          "label": "청결·침구 상태",
+          "pct": 33
+        },
+        {
+          "label": "가격 대비 만족도",
+          "pct": 18
+        },
+        {
+          "label": "접근성·입지",
+          "pct": 16
+        }
+      ],
+      "topicsNegative": [
+        {
+          "label": "객실 청결·시설 문제",
+          "pct": 35
+        },
+        {
+          "label": "부대시설·콘텐츠 부족",
+          "pct": 26
+        },
+        {
+          "label": "직원 서비스·응대 불만",
+          "pct": 24
+        },
+        {
+          "label": "식음료·조식 지적",
+          "pct": 13
+        },
+        {
+          "label": "냄새·위생",
+          "pct": 11
+        }
+      ],
+      "insights": {
+        "diagnosis": [
+          "7월 OCC <b>80.0%</b>(전월 69.4% 대비 +10.6%p) — 성수기 진입, 재방문 의향 4.8/5로 전월 대비 개선",
+          "부정 1위 <b>객실 청결·시설 문제 35%</b>(카펫 먼지, 에어컨 소음·냄새, 배수 불량, 욕실 미끄러움 등) — 리뉴얼 전까지 청소·점검 강화로 방어 <span class='risk-tag high'>리스크 상</span>",
+          "냄새·위생 11%(5건) — <b>식품위생법·공중위생관리법</b> 점검 대상, 환기·배수구 점검 필요 <span class='risk-tag mid'>리스크 중</span>",
+          "긍정 1위 <b>조식·F&B 58%</b> — F&B 앵커 전략이 리뷰 긍정 1위 견인, 침구·웰컴쿠폰·미니바 만족도 4.8/5 최상위",
+          "가족여행 <b>70.3%</b>·디럭스 트리플 <b>62.5%</b> 편중 → 가족 특화 상품·트리플 객실 컨디션 우선 관리"
+        ],
+        "roadmap": {
+          "short": {
+            "text": "부정 리뷰 24시간 내 공식 응대 100% / 카펫·에어컨·배수·욕실 우선 점검·정비 / 냄새 민원 객실 즉시 환기·배수구 점검",
+            "effect": "부정 확산 차단 · 평점 방어"
+          },
+          "mid": {
+            "text": "가족여행·디럭스 트리플 특화 패키지 구성 / 스마트TV·OTT 앱 지원 확대 / 주차장 동선 개선",
+            "effect": "부정 토픽 축소 · 만족도 제고"
+          },
+          "long": {
+            "text": "152실 체제(2027.5) 전환 시 만족도 4.8/5 이상·OCC 85% 동시 달성 로드맵 수립",
+            "effect": "제주 내 최고 경쟁력 확보"
+          }
+        }
+      }
+    },
+    "checkin": {
+      "title": "체크인 고객 방문자 데이터 분석",
+      "kpi": [
+        { "label": "월 방문자 수", "value": 1766, "unit": "명", "note": "일평균 57.0명" },
+        { "label": "여성 방문 비중", "value": 54.5, "unit": "%", "note": "남성 45.5% 대비 +9.0%p 우세" },
+        { "label": "가족 동반 비중", "value": 59.2, "unit": "%", "note": "2인·3~4인 동반 94.3%가 대부분" },
+        { "label": "자녀 동반 비율", "value": 22.6, "unit": "%", "note": "영유아 6.8%·초등 15.8%" }
+      ],
+      "dailyTrend": [63,81,97,74,53,50,47,64,74,17,47,82,68,40,41,78,52,49,38,52,36,58,39,55,57,78,64,53,45,73,41],
+      "age": [
+        { "label": "20대", "pct": 9.2 }, { "label": "30대", "pct": 29.1 },
+        { "label": "40대", "pct": 31.5 }, { "label": "50대", "pct": 24.0 }, { "label": "60대+", "pct": 6.1 }
+      ],
+      "gender": [
+        { "label": "여성", "pct": 54.5 }, { "label": "남성", "pct": 45.5 }
+      ],
+      "companion": [
+        { "label": "커플", "pct": 25.7 }, { "label": "가족", "pct": 59.2 },
+        { "label": "친구·지인", "pct": 12.0 }, { "label": "혼자", "pct": 2.8 }, { "label": "단체", "pct": 0.2 }
+      ],
+      "groupSize": [
+        { "label": "1인", "pct": 2.7 }, { "label": "2인", "pct": 47.4 },
+        { "label": "3~4인", "pct": 46.9 }, { "label": "5인+", "pct": 3.0 }
+      ],
+      "childType": [
+        { "label": "영유아 동반", "pct": 6.8 }, { "label": "초등 동반", "pct": 15.8 }, { "label": "자녀 없음", "pct": 77.4 }
+      ],
+      "insights": {
+        "visitor": [
+          "7월 총 방문자 <b>1,766명</b>, 일평균 <b>57.0명</b> — 월중 최고치 97명(3일)·최저치 17명(10일)로 일별 편차가 큼",
+          "동반유형은 <b>가족 59.2%</b>가 압도적 1위, 커플 25.7%가 뒤를 이어 — 가족 단위 방문이 중심",
+          "단체(0.2%)·혼자(2.8%) 방문은 극히 드물어, 개별보다 <b>동반 방문 중심</b> 구조"
+        ],
+        "segment": [
+          "40대 <b>31.5%</b> 1위, 30대 29.1%·50대 24.0% — 30~50대가 전체의 <b>84.6%</b>",
+          "여성 <b>54.5%</b>로 남성(45.5%) 대비 9.0%p 우세",
+          "20대 9.2%·60대+ 6.1%로 양 극단 연령대 비중은 상대적으로 낮음"
+        ],
+        "summary": [
+          "동반 인원수는 <b>2인(47.4%)·3~4인(46.9%)</b>이 94.3% — 1인·5인+ 방문은 예외적",
+          "자녀 동반 비율 <b>22.6%</b>(영유아 6.8%+초등 15.8%) — 가족 동반 비중(59.2%)보다 낮아, 자녀 없는 성인 가족 방문도 상당수로 추정",
+          "이 데이터는 PMS 예약이 아닌 <b>현장 관찰 집계</b> 방식으로, 체크인시간대·예약채널 등 예약 데이터는 별도 확보 필요"
+        ],
+        "roadmap": {
+          "short": { "text": "가족 단위(59.2%) 동반 방문에 맞춘 웰컴 서비스·객실 배정 우선순위 점검 / 10일과 같은 방문 급감일 원인(요일·날씨 등) 파악", "effect": "가족 고객 만족도 제고 · 방문 변동 요인 파악" },
+          "mid": { "text": "자녀 동반(22.6%) 가족을 위한 키즈 프로그램·어메니티 확대 / 30~50대(84.6%) 타깃 프로모션 강화", "effect": "가족·중장년 고객층 재방문 유도" },
+          "long": { "text": "체크인시간대·예약채널 등 PMS 데이터 연동 체계 구축 — 방문자 관찰 데이터와 결합한 완전한 고객 여정 분석 확보", "effect": "데이터 기반 고객 관리 고도화" }
+        }
+      }
+    },
+    "minibar": {
+      "kpi": [
+        { "label": "평균 분출률", "value": 56.4, "unit": "%", "note": "활성 17개 품목 평균(신규 무사용 품목 제외)" },
+        { "label": "스낵류 평균 분출률", "value": 86.4, "unit": "%", "note": "스낵 6개 품목 평균(신규 제주말차 제외)" },
+        { "label": "월 총 소비 수량", "value": 27300, "unit": "ea", "note": "18개 품목 합산" },
+        { "label": "판매 객실 수", "value": 2846, "unit": "실", "note": "일평균 91.8실" }
+      ],
+      "items": [
+        { "label": "하리보 골드베렌", "cat": "스낵", "rate": 95.9 },
+        { "label": "머거본 허니버터아몬드", "cat": "스낵", "rate": 91.4 },
+        { "label": "블랙트러플 포테이토칩", "cat": "스낵", "rate": 87.8 },
+        { "label": "제주한라봉 샌드웨이퍼", "cat": "스낵", "rate": 86.1 },
+        { "label": "제주감귤 프리바이오틱스", "cat": "음료", "rate": 82.2 },
+        { "label": "보석귤", "cat": "스낵", "rate": 79.4 },
+        { "label": "벚꽃블라썸 샌드웨이퍼", "cat": "스낵", "rate": 78.0 },
+        { "label": "아이긴 애플피치", "cat": "음료", "rate": 58.2 },
+        { "label": "아이긴 애플시트러스", "cat": "음료", "rate": 55.7 },
+        { "label": "아이긴 핑콤토닉", "cat": "음료", "rate": 52.3 },
+        { "label": "빽다방 연유라떼", "cat": "음료", "rate": 34.6 },
+        { "label": "분다버그 레몬에이드(캔)", "cat": "음료", "rate": 32.0 },
+        { "label": "분다버그 핑크자몽(캔)", "cat": "음료", "rate": 31.2 },
+        { "label": "분다버그 핑크자몽(병)", "cat": "음료", "rate": 26.6 },
+        { "label": "아이긴 상콤토닉", "cat": "음료", "rate": 26.1 },
+        { "label": "분다버그 트로피칼망고(병)", "cat": "음료", "rate": 23.2 },
+        { "label": "아이긴 달콤토닉", "cat": "음료", "rate": 18.6 },
+        { "label": "제주말차 샌드웨이퍼", "cat": "스낵", "rate": 0.0 }
+      ],
+      "insights": {
+        "reviews": [
+          "7월 체크아웃 고객 의견에서 <b>\"미니바 제공 서비스에 감탄\", \"미니바를 상시로 운영했으면\"</b> 등 미니바 관련 긍정 언급 다수 확인",
+          "<b>\"청결한 내부와 무료미니바,쿠폰\", \"센스넘치는 미니바\", \"미니바 아주 좋았습니다\"</b> — 무료 제공 자체뿐 아니라 청결·구성 센스도 긍정 요인으로 언급",
+          "<b>\"공사 기간에 대한 미니바 제공 서비스에 감탄\"</b> — 공사 중에도 미니바가 불만을 상쇄하는 요인으로 작동한 것으로 확인",
+          "스낵류 상위권 <b>하리보 골드베렌 95.9%·머거본 허니버터아몬드 91.4%</b> — 리뷰의 긍정 언급과 실제 소비량이 함께 뒷받침되는 인기 품목"
+        ],
+        "operations": [
+          "7월 중 품목 교체 3건 진행 — 상콤토닉→<b>달콤토닉</b>(단종 대체), 분다버그 핑크자몽·트로피칼망고 <b>병→캔</b> 전환(트로피칼망고는 레몬에이드로 대체)",
+          "신규 도입 <b>제주말차 샌드웨이퍼</b>는 이번 달 사용 실적 없음(0%) — 세팅 시점·재고 배치 확인 필요 <span class='risk-tag mid'>리스크 중</span>",
+          "하위권 <b>아이긴 달콤토닉 18.6%·분다버그 트로피칼망고(병) 23.2%·상콤토닉 26.1%</b> — 신규 교체 품목 초기 적응 구간, 추이 관찰 필요"
+        ],
+        "roadmap": {
+          "short": { "text": "제주말차 샌드웨이퍼 세팅 여부 현장 점검 / 신규 교체 품목(달콤토닉·캔 음료 2종) 분출률 추이 2주 단위 모니터링", "effect": "신규 품목 조기 문제 파악" },
+          "mid": { "text": "음료류 하위권(20%대) 품목 라인업 재검토 — 스낵 대비 소비 속도 격차 원인 분석", "effect": "음료 재고 효율화" },
+          "long": { "text": "스낵 강세(평균 86.4%) 기조 유지하며 인기 품목 우선 발주 체계 구축", "effect": "재고 회전율 최적화" }
+        }
+      }
+    }
+  }
+};
+/* ▲▲▲▲▲ 매월 갱신 지점 끝 ▲▲▲▲▲ */
+
+let store = { meta: { period: "2026년 5월", source: "기본 샘플 데이터" } };
+let currentView = "tammora";
+let currentMonthKey = DEFAULT_MONTH;
+let charts = [];
+let publishDateStr = "";
+
+/* =========================================================
+   월별 데이터 저장소 — "YYYY-MM" 키
+   ─ 자료가 등록된 월(+뷰)만 존재한다. 없는 월/뷰는 대시보드에
+     '자료 없음'으로 표시된다.
+   ─ 기본 샘플은 2026-05 의 탐모라·객실·미니바에만 시드한다.
+     (체크인 고객은 2026-07부터 입력 시작 → EXTRA_MONTHS["2026-07"].checkin 참고)
+========================================================= */
+let monthlyStore = {};
+function seedSample(){
+  /* 2026-05는 탐모라만 실제 확인된 값(6월 엑셀의 5월 시트로 집계 대조됨).
+     객실·미니바 5월은 실제 소스로 확인되지 않은 초기 샘플이므로 시드하지 않는다
+     → 5월 객실·미니바는 '자료 없음'으로 표시된다. */
+  monthlyStore = { "2026-05": {
+    tammora: clone(DEFAULT_DATA.tammora)
+  }};
+  for(const [k, v] of Object.entries(EXTRA_MONTHS)) monthlyStore[k] = clone(v);
+  store.meta.source = "호텔사업팀 집계 데이터(PMS·설문·엑셀)";
+}
+seedSample();
+
+function monthData(){ return monthlyStore[currentMonthKey] || null; }
+function viewData(){ const md = monthData(); return md ? (md[currentView] || null) : null; }
+
+/* =========================================================
+   원격 자동 업데이트
+   ─ 아래 URL에 최신 데이터(JSON)를 올려두면, 이 대시보드를
+     즐겨찾기한 동료들은 접속할 때마다 최신 데이터를 자동으로
+     불러옵니다. 값이 비어 있으면 내장 데이터를 사용합니다.
+   ─ JSON 형식(월별):
+     {
+       "months": {
+         "2026-06": { "tammora":{...}, "rooms":{...}, "minibar":{...}, "checkin":{...} },
+         "2026-07": { "checkin":{...} }
+       }
+     }
+     (해당 월·뷰만 넣으면 됩니다. 넣지 않은 월/뷰는 '자료 없음'으로 표시됩니다.)
+========================================================= */
+const REMOTE_DATA_URL = "";  // 예: "https://your-host.com/hotel-data.json"
+
+async function loadRemote(){
+  if(!REMOTE_DATA_URL) return false;
+  try{
+    const res = await fetch(REMOTE_DATA_URL, { cache: "no-store" });
+    if(!res.ok) return false;
+    const remote = await res.json();
+    if(remote && remote.months && typeof remote.months === "object"){
+      for(const [k, views] of Object.entries(remote.months)){
+        monthlyStore[k] = deepMerge(monthlyStore[k] || {}, views);
+      }
+      store.meta.source = "원격 자동 데이터";
+      return true;
+    }
+    return false;
+  }catch(e){ return false; }
+}
+
+/* =========================================================
+   보고 기간(월) 선택 · 발행일 연동
+========================================================= */
+function parsePeriod(p){
+  const m = /(\d{4})\D+(\d{1,2})/.exec(p || "");
+  return m ? { y: +m[1], mo: +m[2] } : { y: 2026, mo: 5 };
+}
+function initPeriodPicker(){
+  const [y, mo] = currentMonthKey.split("-").map(Number);
+  const yearSel = document.getElementById("selYear");
+  const monSel  = document.getElementById("selMonth");
+  const years = [];
+  for(let yy = y - 2; yy <= y + 1; yy++) years.push(yy);
+  yearSel.innerHTML = years.map(v => `<option value="${v}"${v===y?" selected":""}>${v}년</option>`).join("");
+  monSel.innerHTML  = Array.from({length:12},(_,i)=>i+1)
+    .map(v => `<option value="${v}"${v===mo?" selected":""}>${v}월</option>`).join("");
+  applyPeriod(y, mo);
+}
+function onPeriodChange(){
+  const y  = +document.getElementById("selYear").value;
+  const mo = +document.getElementById("selMonth").value;
+  applyPeriod(y, mo);
+  renderAll();
+  loadJsonToEditor();
+}
+/* 선택한 월 → monthKey/기간라벨/발행일(선택월 말일) 연동 */
+function applyPeriod(y, mo){
+  currentMonthKey = `${y}-${String(mo).padStart(2,"0")}`;
+  store.meta.period = `${y}년 ${mo}월`;
+  const last = new Date(y, mo, 0);
+  publishDateStr = `${y}. ${mo}. ${last.getDate()}.`;
+  const md = document.getElementById("metaDate");
+  if(md) md.textContent = publishDateStr;
+}
+
+/* =========================================================
+   공통 유틸 · 차트 스타일
+========================================================= */
+const C = { green:"#1e4034", green2:"#2d5a45", gold:"#c0913c", goldL:"#d9bc7a", blue:"#3b6ea5", brick:"#a4442e", grid:"#e8ece6", tick:"#8a968f" };
+const fmt = v => typeof v === "number" ? v.toLocaleString("ko-KR") : v;
+function destroyCharts(){ charts.forEach(c => c.destroy()); charts = []; }
+
+Chart.defaults.font.size = 13;
+Chart.defaults.font.family = "inherit";
+Chart.defaults.color = "#4a5a52";
+
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { font: { size: 13, weight: 600 }, boxWidth: 14 } },
+    tooltip: { backgroundColor: C.green, titleFont:{size:14,weight:700}, bodyFont:{size:13}, padding:12, cornerRadius:6 }
+  }
+};
+const gY = { grid:{color:C.grid}, ticks:{color:C.tick, font:{size:12}} };
+const gX = { grid:{display:false}, ticks:{color:C.tick, font:{size:12}} };
+
+function kpiCards(kpis, cols){
+  return `<div class="kpi-grid${cols===3?" cols-3":""}">` + kpis.map(k => `
+    <div class="kpi">
+      <div class="k-label">${k.label}</div>
+      <div class="k-value num">${fmt(k.value)}<small>${k.unit||""}</small></div>
+      ${k.note ? `<div class="k-note">${k.note}</div>` : ""}
+    </div>`).join("") + `</div>`;
+}
+function secHead(no, title, note){
+  return `<div class="sec-head"><span class="sec-no">${no}</span><h2>${title}</h2>${note?`<span class="sec-note">${note}</span>`:""}</div>`;
+}
+function insightBox(title, items, full){
+  return `<div class="insight${full?" full":""}"><h3>${title}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
+}
+function roadmapRow(rm){
+  const cell = (tag, r) => `<div class="rm"><div class="rm-head">${tag}</div><div class="rm-body">${r.text}</div><div class="rm-effect"><b>기대효과</b>${r.effect||""}</div></div>`;
+  return `<div class="roadmap-row">${cell("단기 (3개월)", rm.short)}${cell("중기 (1년)", rm.mid)}${cell("장기 (3년)", rm.long)}</div>`;
+}
+function footHTML(){
+  return `<div class="dash-foot">
+    <span>호텔 더본 제주 · 호텔사업팀 | <b>월간 인포그래픽</b></span>
+    <span>${store.meta.period} 분석 · 대외비 · ${publishDateStr || new Date().toLocaleDateString("ko-KR")} 발행</span></div>`;
+}
+
+/* =========================================================
+   VIEW 01 : 탐모라 (핵심요약 → ①날씨·요일 → ②세그먼트 → ③확장)
+========================================================= */
+function renderTammora(d){
+  document.getElementById("dashboard").innerHTML = `
+    ${secHead("★","탐모라 부문 핵심 요약 · 이용 추이", store.meta.period)}
+    <div class="dash-body">
+      ${kpiCards(d.kpi)}
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>일별 조식 이용 인원 추이</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chDaily"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>시간대별 이용 분포</h3><span class="cc-note">%</span></div>
+            <div class="chart-box short"><canvas id="chHourly"></canvas></div>
+          </div>
+          ${insightBox("혼잡도 진단", d.insights.congestion)}
+        </div>
+      </div>
+
+      ${secHead("1","날씨별 · 요일별 이용 분석")}
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="cc-head"><h3>날씨별 평균 이용 인원 / 이용률</h3><span class="cc-note">명 · %</span></div>
+          <div class="chart-box"><canvas id="chWeather"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>주중 / 주말 평균 이용</h3><span class="cc-note">이용률 ${d.weekPattern.weekdayRate}% vs ${d.weekPattern.weekendRate}%</span></div>
+            <div class="chart-box short"><canvas id="chWeek"></canvas></div>
+          </div>
+          ${insightBox("날씨·요일 인사이트", d.insights.weather)}
+        </div>
+      </div>
+
+      ${secHead("2","고객 세그먼트 (이용객 구성)")}
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>연령대 × 성별 분포</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chAgeGender"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>성별 구성</h3></div>
+            <div class="chart-box short"><canvas id="chGender"></canvas></div>
+          </div>
+          ${insightBox("세그먼트 특징", d.insights.segment)}
+        </div>
+      </div>
+
+      ${secHead("3","확장 운영 분석 · 로드맵")}
+      ${kpiCards(d.expansionKpi, 3)}
+      <div class="insight-grid">
+        ${insightBox("데이터 기반 확장 포인트", d.insights.expansion, true)}
+      </div>
+      ${roadmapRow(d.insights.roadmap)}
+    </div>
+    ${footHTML()}`;
+
+  charts.push(new Chart(chDaily, { type:"line",
+    data:{ labels: d.dailyTrend.map((_,i)=>i+1),
+      datasets:[{ data:d.dailyTrend, borderColor:C.green, backgroundColor:"rgba(30,64,52,.08)",
+        pointBackgroundColor:C.green, pointRadius:3.5, fill:true, tension:.35, borderWidth:2.5 }] },
+    options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ y:{ ...gY, beginAtZero:true, suggestedMax:300 }, x:{ ...gX, ticks:{...gX.ticks, maxTicksLimit:16} } } } }));
+
+  charts.push(new Chart(chHourly, { type:"bar",
+    data:{ labels:d.hourly.map(h=>h.label),
+      datasets:[{ data:d.hourly.map(h=>h.pct), backgroundColor:d.hourly.map((h,i)=>i===0?C.gold:C.green), borderRadius:5, maxBarThickness:42 }] },
+    options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ y:{ ...gY, beginAtZero:true, max:60, ticks:{...gY.ticks, callback:v=>v+"%"} }, x:{ ...gX, ticks:{...gX.ticks, font:{size:11}} } } } }));
+
+  charts.push(new Chart(chWeather, { type:"bar",
+    data:{ labels:d.weatherAvg.map(w=>w.label),
+      datasets:[
+        { label:"평균 이용 인원(명)", data:d.weatherAvg.map(w=>w.avg), backgroundColor:C.green, borderRadius:5, maxBarThickness:48, yAxisID:"y" },
+        { label:"이용률(%)", data:d.weatherRate.map(w=>w.rate), type:"line", borderColor:C.gold, backgroundColor:C.gold, pointRadius:5, borderWidth:2.5, yAxisID:"y1" }
+      ] },
+    options:{ ...baseOpts,
+      scales:{ y:{ ...gY, beginAtZero:true, suggestedMax:200, title:{display:true,text:"명",color:C.tick} },
+               y1:{ position:"right", beginAtZero:true, max:100, grid:{display:false}, ticks:{color:C.gold, callback:v=>v+"%"} },
+               x:gX } } }));
+
+  charts.push(new Chart(chWeek, { type:"bar",
+    data:{ labels:["주말","주중"],
+      datasets:[{ data:[d.weekPattern.weekendAvg, d.weekPattern.weekdayAvg], backgroundColor:[C.gold, C.blue], borderRadius:5, maxBarThickness:30 }] },
+    options:{ ...baseOpts, indexAxis:"y", plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ x:{ ...gY, beginAtZero:false, suggestedMin:140, title:{display:true,text:"평균 이용 인원(명)",color:C.tick} }, y:{ ...gX, ticks:{...gX.ticks, font:{size:13,weight:700}} } } } }));
+
+  charts.push(new Chart(chAgeGender, { type:"bar",
+    data:{ labels:d.ageGender.map(a=>a.label),
+      datasets:[
+        { label:"남", data:d.ageGender.map(a=>a.male), backgroundColor:C.blue, borderRadius:3, maxBarThickness:52 },
+        { label:"여", data:d.ageGender.map(a=>a.female), backgroundColor:C.gold, borderRadius:3, maxBarThickness:52 }
+      ] },
+    options:{ ...baseOpts,
+      scales:{ y:{ ...gY, stacked:true, beginAtZero:true }, x:{ ...gX, stacked:true } } } }));
+
+  charts.push(new Chart(chGender, { type:"doughnut",
+    data:{ labels:d.gender.map(g=>`${g.label} ${g.pct}%`),
+      datasets:[{ data:d.gender.map(g=>g.pct), backgroundColor:[C.gold, C.green], borderWidth:3, borderColor:"#fff" }] },
+    options:{ ...baseOpts, cutout:"58%", plugins:{ ...baseOpts.plugins, legend:{ position:"right" } } } }));
+}
+
+/* =========================================================
+   VIEW 02 : 객실
+========================================================= */
+function renderRooms(d){
+  const secs = [], inits = [];
+  let n = 0;
+
+  /* 항목별 평균 만족도 (있을 때만) */
+  if(d.satisfaction && d.satisfaction.length){
+    n++;
+    const s = [...d.satisfaction];
+    secs.push(secHead(n,"항목별 평균 만족도") + `
+      <div class="chart-grid"><div class="chart-card wide">
+        <div class="cc-head"><h3>항목별 평균 만족도</h3><span class="cc-note">5점 만점 · 4.0~5.0 구간 확대</span></div>
+        <div class="chart-box tall"><canvas id="chSat"></canvas></div>
+      </div></div>`);
+    inits.push(()=> charts.push(new Chart(chSat, { type:"bar",
+      data:{ labels:s.map(x=>x.label),
+        datasets:[{ data:s.map(x=>x.score), backgroundColor:s.map(x=>x.score>=4.7?C.gold:C.green), borderRadius:5, maxBarThickness:22 }] },
+      options:{ ...baseOpts, indexAxis:"y", plugins:{ ...baseOpts.plugins, legend:{display:false},
+          tooltip:{ ...baseOpts.plugins.tooltip, callbacks:{ label:c=>` ${c.parsed.x} / 5` } } },
+        scales:{ x:{ ...gY, min:4.0, max:5.0 }, y:{ ...gX, ticks:{...gX.ticks, font:{size:12,weight:600}} } } } })));
+  }
+
+  /* 방문 목적 · 객실 타입 (있을 때만) */
+  if((d.visitPurpose&&d.visitPurpose.length)||(d.roomType&&d.roomType.length)){
+    n++;
+    let cards="";
+    if(d.visitPurpose&&d.visitPurpose.length) cards+=`<div class="chart-card"><div class="cc-head"><h3>방문 목적</h3><span class="cc-note">리뷰 기준 %</span></div><div class="chart-box"><canvas id="chPurpose"></canvas></div></div>`;
+    if(d.roomType&&d.roomType.length) cards+=`<div class="chart-card"><div class="cc-head"><h3>객실 타입 분포</h3><span class="cc-note">리뷰 기준 %</span></div><div class="chart-box"><canvas id="chRoomType"></canvas></div></div>`;
+    secs.push(secHead(n,"방문 목적 · 객실 타입")+`<div class="chart-grid">${cards}</div>`);
+    inits.push(()=>{
+      if(d.visitPurpose&&d.visitPurpose.length) charts.push(new Chart(chPurpose, { type:"doughnut",
+        data:{ labels:d.visitPurpose.map(x=>`${x.label} ${x.pct}%`),
+          datasets:[{ data:d.visitPurpose.map(x=>x.pct), backgroundColor:[C.green,C.gold,C.blue,C.goldL], borderWidth:3, borderColor:"#fff" }] },
+        options:{ ...baseOpts, cutout:"56%", plugins:{ ...baseOpts.plugins, legend:{ position:"right", labels:{font:{size:11,weight:600},boxWidth:12} } } } }));
+      if(d.roomType&&d.roomType.length) charts.push(new Chart(chRoomType, { type:"bar",
+        data:{ labels:d.roomType.map(x=>x.label),
+          datasets:[{ data:d.roomType.map(x=>x.pct), backgroundColor:C.blue, borderRadius:5, maxBarThickness:46 }] },
+        options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+          scales:{ y:{ ...gY, beginAtZero:true, ticks:{...gY.ticks, callback:v=>v+"%"} }, x:{ ...gX, ticks:{...gX.ticks, font:{size:11}} } } } }));
+    });
+  }
+
+  /* 긍정·부정 토픽 (있을 때만) */
+  if((d.topicsPositive&&d.topicsPositive.length)||(d.topicsNegative&&d.topicsNegative.length)){
+    n++;
+    secs.push(secHead(n,"리뷰 텍스트 분석 · 토픽 Top 5")+`
+      <div class="chart-grid">
+        <div class="chart-card"><div class="cc-head"><h3>긍정 토픽 Top 5</h3><span class="cc-note">리뷰 내 언급 비율</span></div><div class="chart-box"><canvas id="chPos"></canvas></div></div>
+        <div class="chart-card"><div class="cc-head"><h3>부정 토픽 Top 5</h3><span class="cc-note">리뷰 내 언급 비율</span></div><div class="chart-box"><canvas id="chNeg"></canvas></div></div>
+      </div>`);
+    inits.push(()=>{
+      const hOpts = { ...baseOpts, indexAxis:"y", plugins:{ ...baseOpts.plugins, legend:{display:false} },
+        scales:{ x:{ ...gY, beginAtZero:true, max:50, ticks:{...gY.ticks, callback:v=>v+"%"} }, y:{ ...gX, ticks:{...gX.ticks, font:{size:13,weight:600}} } } };
+      if(d.topicsPositive&&d.topicsPositive.length) charts.push(new Chart(chPos, { type:"bar",
+        data:{ labels:d.topicsPositive.map(t=>t.label), datasets:[{ data:d.topicsPositive.map(t=>t.pct), backgroundColor:C.green, borderRadius:5, maxBarThickness:26 }] }, options:hOpts }));
+      if(d.topicsNegative&&d.topicsNegative.length) charts.push(new Chart(chNeg, { type:"bar",
+        data:{ labels:d.topicsNegative.map(t=>t.label), datasets:[{ data:d.topicsNegative.map(t=>t.pct), backgroundColor:C.brick, borderRadius:5, maxBarThickness:26 }] }, options:hOpts }));
+    });
+  }
+
+  /* 진단 · 로드맵 */
+  n++;
+  secs.push(secHead(n,"진단 · 객실 개선 로드맵")+`
+      <div class="insight-grid">${insightBox("리뷰 총평 · 진단", d.insights.diagnosis, true)}</div>
+      ${roadmapRow(d.insights.roadmap)}`);
+
+  document.getElementById("dashboard").innerHTML = `
+    ${secHead("★","객실 부문 핵심 요약", store.meta.period)}
+    <div class="dash-body">
+      ${kpiCards(d.kpi)}
+      ${secs.join("\n")}
+    </div>
+    ${footHTML()}`;
+
+  inits.forEach(fn=>fn());
+}
+
+/* =========================================================
+   VIEW 03 : 미니바
+========================================================= */
+function renderMinibar(d){
+  document.getElementById("dashboard").innerHTML = `
+    ${secHead("★","미니바 부문 핵심 요약", store.meta.period)}
+    <div class="dash-body">
+      ${kpiCards(d.kpi)}
+
+      ${secHead("1","품목별 객실 대비 분출률")}
+      <div class="chart-grid">
+        <div class="chart-card wide">
+          <div class="cc-head"><h3>품목별 분출률 비교</h3><span class="cc-note">■ 스낵류(그린) ■ 음료류(골드) · 판매 객실 수 대비 %</span></div>
+          <div class="chart-box tall"><canvas id="chItems"></canvas></div>
+        </div>
+      </div>
+
+      ${secHead("2","고객 반응 · 운영 인사이트 · 로드맵")}
+      <div class="insight-grid">
+        ${insightBox("고객 리뷰 분석", d.insights.reviews)}
+        ${insightBox("운영 현황 및 인사이트", d.insights.operations)}
+      </div>
+      ${roadmapRow(d.insights.roadmap)}
+    </div>
+    ${footHTML()}`;
+
+  const sorted = [...d.items].sort((a,b)=>b.rate-a.rate);
+  charts.push(new Chart(chItems, { type:"bar",
+    data:{ labels:sorted.map(i=>i.label),
+      datasets:[{ data:sorted.map(i=>i.rate), backgroundColor:sorted.map(i=>i.cat==="스낵"?C.green:C.gold), borderRadius:5, maxBarThickness:46 }] },
+    options:{ ...baseOpts,
+      plugins:{ ...baseOpts.plugins, legend:{display:false},
+        tooltip:{ ...baseOpts.plugins.tooltip, callbacks:{ label:c=>` ${sorted[c.dataIndex].cat} · ${c.parsed.y}%` } } },
+      scales:{ y:{ ...gY, beginAtZero:true, max:100, ticks:{...gY.ticks, callback:v=>v+"%"} },
+               x:{ ...gX, ticks:{...gX.ticks, maxRotation:30, font:{size:12,weight:600}} } } } }));
+}
+
+/* =========================================================
+   VIEW 04 : 체크인 고객
+========================================================= */
+function renderCheckin(d){
+  document.getElementById("dashboard").innerHTML = `
+    ${secHead("★","체크인 고객 부문 핵심 요약 · 방문자 추이", store.meta.period)}
+    <div class="dash-body">
+      ${kpiCards(d.kpi)}
+
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>일별 방문자 추이</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chDaily2"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>동반 유형 구성</h3><span class="cc-note">%</span></div>
+            <div class="chart-box short"><canvas id="chCompanion"></canvas></div>
+          </div>
+          ${insightBox("방문객 특성 진단", d.insights.visitor)}
+        </div>
+      </div>
+
+      ${secHead("1","연령대 · 성별 구성")}
+      <div class="chart-grid r21">
+        <div class="chart-card">
+          <div class="cc-head"><h3>연령대 분포</h3><span class="cc-note">%</span></div>
+          <div class="chart-box tall"><canvas id="chAge"></canvas></div>
+        </div>
+        <div class="stack-col">
+          <div class="chart-card">
+            <div class="cc-head"><h3>성별 구성</h3></div>
+            <div class="chart-box short"><canvas id="chGender2"></canvas></div>
+          </div>
+          ${insightBox("세그먼트 인사이트", d.insights.segment)}
+        </div>
+      </div>
+
+      ${secHead("2","동반 인원수 · 동반 아동 유무")}
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="cc-head"><h3>동반 인원수 분포</h3><span class="cc-note">%</span></div>
+          <div class="chart-box"><canvas id="chGroupSize"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-head"><h3>동반 아동 유무</h3><span class="cc-note">%</span></div>
+          <div class="chart-box"><canvas id="chChildType"></canvas></div>
+        </div>
+      </div>
+
+      ${secHead("3","진단 · 체크인 고객 운영 로드맵")}
+      <div class="insight-grid">
+        ${insightBox("종합 진단", d.insights.summary, true)}
+      </div>
+      ${roadmapRow(d.insights.roadmap)}
+    </div>
+    ${footHTML()}`;
+
+  charts.push(new Chart(chDaily2, { type:"line",
+    data:{ labels: d.dailyTrend.map((_,i)=>i+1),
+      datasets:[{ data:d.dailyTrend, borderColor:C.green, backgroundColor:"rgba(30,64,52,.08)",
+        pointBackgroundColor:C.green, pointRadius:3.5, fill:true, tension:.35, borderWidth:2.5 }] },
+    options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ y:{ ...gY, beginAtZero:true }, x:{ ...gX, ticks:{...gX.ticks, maxTicksLimit:16} } } } }));
+
+  charts.push(new Chart(chCompanion, { type:"doughnut",
+    data:{ labels:d.companion.map(c=>`${c.label} ${c.pct}%`),
+      datasets:[{ data:d.companion.map(c=>c.pct), backgroundColor:[C.gold, C.green, C.blue, C.goldL, C.brick], borderWidth:3, borderColor:"#fff" }] },
+    options:{ ...baseOpts, cutout:"56%", plugins:{ ...baseOpts.plugins, legend:{ position:"right", labels:{ font:{size:11,weight:600}, boxWidth:12 } } } } }));
+
+  const ageMax = Math.max(...d.age.map(a=>a.pct));
+  charts.push(new Chart(chAge, { type:"bar",
+    data:{ labels:d.age.map(a=>a.label),
+      datasets:[{ data:d.age.map(a=>a.pct), backgroundColor:d.age.map(a=>a.pct===ageMax?C.gold:C.green), borderRadius:5, maxBarThickness:46 }] },
+    options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ y:{ ...gY, beginAtZero:true, ticks:{...gY.ticks, callback:v=>v+"%"} }, x:{ ...gX, ticks:{...gX.ticks, font:{size:12,weight:600}} } } } }));
+
+  charts.push(new Chart(chGender2, { type:"doughnut",
+    data:{ labels:d.gender.map(g=>`${g.label} ${g.pct}%`),
+      datasets:[{ data:d.gender.map(g=>g.pct), backgroundColor:[C.gold, C.green], borderWidth:3, borderColor:"#fff" }] },
+    options:{ ...baseOpts, cutout:"58%", plugins:{ ...baseOpts.plugins, legend:{ position:"right" } } } }));
+
+  charts.push(new Chart(chGroupSize, { type:"bar",
+    data:{ labels:d.groupSize.map(g=>g.label),
+      datasets:[{ data:d.groupSize.map(g=>g.pct), backgroundColor:C.blue, borderRadius:5, maxBarThickness:46 }] },
+    options:{ ...baseOpts, plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ y:{ ...gY, beginAtZero:true, ticks:{...gY.ticks, callback:v=>v+"%"} }, x:{ ...gX, ticks:{...gX.ticks, font:{size:12,weight:600}} } } } }));
+
+  charts.push(new Chart(chChildType, { type:"doughnut",
+    data:{ labels:d.childType.map(c=>`${c.label} ${c.pct}%`),
+      datasets:[{ data:d.childType.map(c=>c.pct), backgroundColor:[C.green, C.gold, C.goldL], borderWidth:3, borderColor:"#fff" }] },
+    options:{ ...baseOpts, cutout:"56%", plugins:{ ...baseOpts.plugins, legend:{ position:"right", labels:{ font:{size:11,weight:600}, boxWidth:12 } } } } }));
+}
+
+/* =========================================================
+   뷰 전환 · 빈 상태
+========================================================= */
+function renderEmpty(){
+  const name = VIEW_NAMES[currentView] || "";
+  document.getElementById("dashboard").innerHTML = `
+    ${secHead("★", name + " 부문 핵심 요약", store.meta.period)}
+    <div class="dash-body">
+      <div class="empty-state">
+        <div class="empty-ico">🗓️</div>
+        <h3>${store.meta.period} · 자료가 없습니다</h3>
+        <p><b>${name}</b> 부문은 이 달의 자료가 등록되지 않았습니다.<br>
+           자료가 준비되면 이 화면에 표시됩니다.</p>
+      </div>
+    </div>
+    ${footHTML()}`;
+}
+function renderAll(){
+  destroyCharts();
+  const vd = viewData();
+  if(!vd) renderEmpty();
+  else if(currentView === "tammora") renderTammora(vd);
+  else if(currentView === "rooms")   renderRooms(vd);
+  else if(currentView === "minibar") renderMinibar(vd);
+  else if(currentView === "checkin") renderCheckin(vd);
+  const src = document.getElementById("metaSource");
+  if(src) src.textContent = store.meta.source;
+}
+function switchView(btn){
+  document.querySelectorAll(".vtab").forEach(t=>t.classList.remove("active"));
+  btn.classList.add("active");
+  currentView = btn.dataset.view;
+  renderAll();
+  loadJsonToEditor();
+}
+</script>
+<script>
+/* =========================================================
+   입력 패널 UI
+========================================================= */
+function switchInput(btn){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".input-pane").forEach(p=>p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById(btn.dataset.pane).classList.add("active");
+  if(btn.dataset.pane === "paneJson") loadJsonToEditor();
+}
+function togglePanel(){
+  const body = document.getElementById("panelBody");
+  const btn = document.getElementById("panelToggle");
+  const hidden = body.style.display === "none";
+  body.style.display = hidden ? "" : "none";
+  btn.textContent = hidden ? "접기 ▲" : "펼치기 ▼";
+}
+function getTarget(){ return document.querySelector('input[name="target"]:checked').value; }
+function setStatus(id, cls, html){
+  const el = document.getElementById(id);
+  el.className = "status " + cls; el.innerHTML = html;
+}
+
+/* =========================================================
+   AI 매핑 공통 : Claude API
+========================================================= */
+function schemaFor(target){ return JSON.stringify(DEFAULT_DATA[target], null, 1); }
+
+async function callClaude(contentBlocks){
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: contentBlocks }]
+    })
+  });
+  if(!res.ok) throw new Error("API 응답 오류 (" + res.status + ")");
+  const data = await res.json();
+  const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  const clean = text.replace(/```json|```/g, "").trim();
+  const start = clean.indexOf("{"), end = clean.lastIndexOf("}");
+  if(start < 0 || end < 0) throw new Error("JSON 응답을 찾지 못함");
+  return JSON.parse(clean.slice(start, end + 1));
+}
+
+function buildPrompt(target, rawText){
+  const targetDesc = target === "auto"
+    ? '먼저 데이터 성격을 판별해 "view" 필드에 "tammora"(조식당), "rooms"(객실 투숙/리뷰), "minibar"(미니바), "checkin"(체크인 고객·방문자 성별·연령대·동반유형·동반인원수) 중 하나를 지정하고, 해당 뷰의 스키마로 변환하라. 최상위에 {"view":"...","data":{...}} 형태로 응답.'
+    : `아래 스키마 구조를 그대로 유지하며 값만 교체하라. 최상위에 {"view":"${target}","data":{...}} 형태로 응답.`;
+  const schema = schemaFor(target === "auto" ? "tammora" : target);
+  return `당신은 호텔 데이터 파서다. 아래 원본 데이터에서 수치를 추출해 지정된 JSON 스키마에 매핑하라.
+규칙:
+1. 반드시 유효한 JSON만 응답 (마크다운·설명·백틱 금지)
+2. 원본에 없는 값은 스키마의 기존 값 유지, 확인된 값만 교체
+3. 수치는 숫자 타입으로, 비율은 % 기호 없이 숫자만
+4. insights 텍스트는 원본 데이터 근거로 간결하게 재작성 (추정 금지)
+5. ${targetDesc}
+
+[대상 스키마]
+${schema}
+
+[원본 데이터]
+${rawText}`;
+}
+
+function mergeResult(result){
+  const view = result.view;
+  const data = result.data || result;
+  if(!["tammora","rooms","minibar","checkin"].includes(view)) throw new Error("뷰 판별 실패");
+  if(!monthlyStore[currentMonthKey]) monthlyStore[currentMonthKey] = {};
+  const base = monthlyStore[currentMonthKey][view] || clone(DEFAULT_DATA[view]);
+  monthlyStore[currentMonthKey][view] = deepMerge(clone(base), data);
+  currentView = view;
+  document.querySelectorAll(".vtab").forEach(t=>t.classList.toggle("active", t.dataset.view===view));
+  store.meta.source = "업로드 데이터 (AI 매핑)";
+  renderAll();
+  return view;
+}
+function deepMerge(base, patch){
+  if(Array.isArray(patch)) return patch;
+  if(typeof patch !== "object" || patch === null) return patch;
+  for(const k of Object.keys(patch)) base[k] = deepMerge(base[k] ?? {}, patch[k]);
+  return base;
+}
+const VIEW_NAMES = { tammora:"탐모라(조식)", rooms:"객실 투숙", minibar:"미니바", checkin:"체크인 고객" };
+
+/* =========================================================
+   ① XLSX / CSV 업로드
+========================================================= */
+const fileInput = document.getElementById("fileInput");
+const dropFile = document.getElementById("dropFile");
+bindDrop(dropFile, fileInput, handleFile);
+fileInput.addEventListener("change", e => e.target.files[0] && handleFile(e.target.files[0]));
+
+async function handleFile(file){
+  try{
+    setStatus("fileStatus","info",`<span class="spin"></span>「${file.name}」 파싱 중...`);
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type:"array" });
+
+    const local = tryLocalParse(wb, getTarget());
+    if(local){
+      const view = mergeResult(local);
+      store.meta.source = "업로드 데이터 (표준 양식)";
+      renderAll();
+      setStatus("fileStatus","ok",`✓ 표준 양식 인식 — <b>${VIEW_NAMES[view]}</b> 뷰에 즉시 반영되었습니다 (AI 미사용).`);
+      fileInput.value = ""; return;
+    }
+
+    let rawText = "";
+    wb.SheetNames.forEach(name => {
+      rawText += `\n### 시트: ${name}\n` + XLSX.utils.sheet_to_csv(wb.Sheets[name]);
+    });
+    if(rawText.trim().length < 5) throw new Error("파일에서 데이터를 읽지 못했습니다");
+    setStatus("fileStatus","info",`<span class="spin"></span>표준 양식이 아니므로 AI 매핑 시도 중... (약 10~20초)`);
+    const result = await callClaude([{ type:"text", text: buildPrompt(getTarget(), rawText.slice(0, 12000)) }]);
+    const view = mergeResult(result);
+    setStatus("fileStatus","ok",`✓ AI 매핑 완료 — <b>${VIEW_NAMES[view]}</b> 뷰에 반영되었습니다. ③ 탭에서 수치 검증을 권장합니다.`);
+  }catch(err){
+    if(String(err.message).includes("Failed to fetch")){
+      setStatus("fileStatus","err",
+        `✗ AI 매핑 불가 — 이 기능은 <b>Claude 대화창의 미리보기 안에서 실행할 때만</b> 동작합니다.<br>
+         로컬(다운로드 파일)에서 사용하려면 위의 <b>표준 양식</b>을 다운로드해 수치를 입력한 뒤 업로드하세요. 표준 양식은 네트워크 없이 즉시 매핑됩니다.`);
+    } else {
+      setStatus("fileStatus","err","✗ 실패: " + err.message);
+    }
+  }
+  fileInput.value = "";
+}
+
+/* ---------- 표준 양식 로컬 파서 ---------- */
+const norm = s => String(s||"").replace(/\s+/g,"").toLowerCase();
+
+function tryLocalParse(wb, target){
+  const sheets = {};
+  wb.SheetNames.forEach(n => sheets[norm(n)] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header:1, defval:"" }));
+
+  let view = target;
+  if(target === "auto"){
+    if(sheets["품목별분출률"]) view = "minibar";
+    else if(sheets["긍정토픽"] || sheets["부정토픽"]) view = "rooms";
+    else if(sheets["일별방문자"] || sheets["연령대"] || sheets["동반유형"] || sheets["동반인원수"] || sheets["동반아동유무"]) view = "checkin";
+    else if(sheets["일별추이"] || sheets["시간대별"] || sheets["날씨별이용률"] || sheets["연령성별"]) view = "tammora";
+    else return null;
+  }
+  const hasViewSheet =
+    (view==="tammora" && (sheets["일별추이"]||sheets["시간대별"]||sheets["날씨별이용률"]||sheets["연령성별"]||sheets["성별"])) ||
+    (view==="rooms"   && (sheets["긍정토픽"]||sheets["부정토픽"])) ||
+    (view==="minibar" && sheets["품목별분출률"]) ||
+    (view==="checkin" && (sheets["일별방문자"]||sheets["연령대"]||sheets["동반유형"]||sheets["동반인원수"]||sheets["동반아동유무"]));
+  if(!sheets["kpi"] && !hasViewSheet) return null;
+
+  const num = v => { const n = parseFloat(String(v).replace(/[,%\s]/g,"")); return isNaN(n) ? v : n; };
+  const rows = key => (sheets[key]||[]).slice(1).filter(r => String(r[0]).trim() !== "");
+  const data = {};
+
+  if(sheets["kpi"]){
+    const k = rows("kpi").slice(0,4).map(r => ({ label:String(r[0]), value:num(r[1]), unit:String(r[2]||""), note:String(r[3]||"") }));
+    if(k.length === 4) data.kpi = k;
+  }
+  if(view === "tammora"){
+    if(sheets["일별추이"]) data.dailyTrend = rows("일별추이").map(r=>num(r[1])).filter(v=>typeof v==="number");
+    if(sheets["시간대별"]) data.hourly = rows("시간대별").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["날씨별이용률"]) {
+      const w = rows("날씨별이용률");
+      data.weatherAvg = w.map(r=>({ label:String(r[0]), avg:num(r[1]) }));
+      data.weatherRate = w.map(r=>({ label:String(r[0]), rate:num(r[2]) }));
+    }
+    if(sheets["주중주말"]){
+      const w = rows("주중주말"); const wk = {}, we = {};
+      w.forEach(r => {
+        const g = norm(r[0]);
+        if(g.includes("주중")){ wk.avg=num(r[1]); wk.rate=num(r[2]); }
+        if(g.includes("주말")){ we.avg=num(r[1]); we.rate=num(r[2]); }
+      });
+      if(wk.avg!=null && we.avg!=null) data.weekPattern = { weekdayAvg:wk.avg, weekendAvg:we.avg, weekdayRate:wk.rate, weekendRate:we.rate };
+    }
+    if(sheets["연령성별"]) data.ageGender = rows("연령성별").map(r=>({ label:String(r[0]), male:num(r[1]), female:num(r[2]) }));
+    if(sheets["성별"]) data.gender = rows("성별").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["확장kpi"]){
+      const e = rows("확장kpi").slice(0,3).map(r=>({ label:String(r[0]), value:num(r[1]), unit:String(r[2]||""), note:String(r[3]||"") }));
+      if(e.length === 3) data.expansionKpi = e;
+    }
+  }
+  if(view === "rooms"){
+    if(sheets["긍정토픽"]) data.topicsPositive = rows("긍정토픽").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["부정토픽"]) data.topicsNegative = rows("부정토픽").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+  }
+  if(view === "minibar" && sheets["품목별분출률"]){
+    data.items = rows("품목별분출률").map(r=>({ label:String(r[0]), cat:String(r[1]||"스낵"), rate:num(r[2]) }));
+  }
+  if(view === "checkin"){
+    if(sheets["일별방문자"])   data.dailyTrend = rows("일별방문자").map(r=>num(r[1])).filter(v=>typeof v==="number");
+    if(sheets["연령대"])       data.age        = rows("연령대").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["성별"])         data.gender     = rows("성별").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["동반유형"])     data.companion  = rows("동반유형").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["동반인원수"])   data.groupSize  = rows("동반인원수").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+    if(sheets["동반아동유무"]) data.childType  = rows("동반아동유무").map(r=>({ label:String(r[0]), pct:num(r[1]) }));
+  }
+
+  /* 인사이트 시트 (선택): [구분, 내용]
+     구분 접두어: 혼잡/날씨/세그/확장/진단/리뷰/운영, 단기/중기/장기, 효과단기/효과중기/효과장기 */
+  if(sheets["인사이트"]){
+    const buckets = { 혼잡:"congestion", 날씨:"weather", 세그:"segment", 확장:"expansion", 진단:"diagnosis", 리뷰:"reviews", 운영:"operations", 요약:"summary", 방문:"visitor" };
+    const baseIns = (monthlyStore[currentMonthKey] && monthlyStore[currentMonthKey][view] && monthlyStore[currentMonthKey][view].insights)
+                    || DEFAULT_DATA[view].insights;
+    const ins = JSON.parse(JSON.stringify(baseIns));
+    const collected = {};
+    let rmTouched = false;
+    rows("인사이트").forEach(r => {
+      const g = String(r[0]).replace(/\s+/g,""), txt = String(r[1]||"").trim();
+      if(!txt) return;
+      const key = Object.keys(buckets).find(p => g.startsWith(p));
+      if(key){ (collected[buckets[key]] = collected[buckets[key]]||[]).push(txt); return; }
+      if(g==="단기"){ ins.roadmap.short.text = txt; rmTouched=true; }
+      else if(g==="중기"){ ins.roadmap.mid.text = txt; rmTouched=true; }
+      else if(g==="장기"){ ins.roadmap.long.text = txt; rmTouched=true; }
+      else if(g==="효과단기"){ ins.roadmap.short.effect = txt; rmTouched=true; }
+      else if(g==="효과중기"){ ins.roadmap.mid.effect = txt; rmTouched=true; }
+      else if(g==="효과장기"){ ins.roadmap.long.effect = txt; rmTouched=true; }
+    });
+    Object.keys(collected).forEach(k => ins[k] = collected[k]);
+    if(Object.keys(collected).length || rmTouched) data.insights = ins;
+  }
+
+  return Object.keys(data).length ? { view, data } : null;
+}
+
+/* ---------- 표준 양식 XLSX 생성 ---------- */
+function downloadTemplate(view){
+  const d = DEFAULT_DATA[view];
+  const wb = XLSX.utils.book_new();
+  const add = (name, aoa) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), name);
+  const strip = t => String(t).replace(/<[^>]+>/g,"");
+
+  add("KPI", [["지표","값","단위","비고"], ...d.kpi.map(k=>[k.label, k.value, k.unit, k.note])]);
+  if(view === "tammora"){
+    add("일별추이", [["일","이용 인원(명)"], ...d.dailyTrend.map((v,i)=>[i+1, v])]);
+    add("시간대별", [["시간대","비중(%)"], ...d.hourly.map(h=>[h.label, h.pct])]);
+    add("날씨별이용률", [["날씨","평균 인원(명)","이용률(%)"], ...d.weatherAvg.map((w,i)=>[w.label, w.avg, d.weatherRate[i].rate])]);
+    add("주중주말", [["구분","평균 인원(명)","이용률(%)"],["주중", d.weekPattern.weekdayAvg, d.weekPattern.weekdayRate],["주말", d.weekPattern.weekendAvg, d.weekPattern.weekendRate]]);
+    add("연령성별", [["연령대","남(명)","여(명)"], ...d.ageGender.map(a=>[a.label, a.male, a.female])]);
+    add("성별", [["구분","비중(%)"], ...d.gender.map(g=>[g.label, g.pct])]);
+    add("확장KPI", [["지표","값","단위","비고"], ...d.expansionKpi.map(k=>[k.label, k.value, k.unit, k.note])]);
+  }
+  if(view === "rooms"){
+    add("긍정토픽", [["토픽","비율(%)"], ...d.topicsPositive.map(t=>[t.label, t.pct])]);
+    add("부정토픽", [["토픽","비율(%)"], ...d.topicsNegative.map(t=>[t.label, t.pct])]);
+  }
+  if(view === "minibar"){
+    add("품목별분출률", [["품목","분류(스낵/음료)","분출률(%)"], ...d.items.map(i=>[i.label, i.cat, i.rate])]);
+  }
+  if(view === "checkin"){
+    add("일별방문자", [["일","방문자 수(명)"], ...d.dailyTrend.map((v,i)=>[i+1, v])]);
+    add("연령대", [["연령대","비중(%)"], ...d.age.map(x=>[x.label, x.pct])]);
+    add("성별", [["구분","비중(%)"], ...d.gender.map(x=>[x.label, x.pct])]);
+    add("동반유형", [["유형","비중(%)"], ...d.companion.map(x=>[x.label, x.pct])]);
+    add("동반인원수", [["인원수","비중(%)"], ...d.groupSize.map(x=>[x.label, x.pct])]);
+    add("동반아동유무", [["구분","비중(%)"], ...d.childType.map(x=>[x.label, x.pct])]);
+  }
+
+  const insRows = [["구분","내용"]];
+  const ins = d.insights;
+  ["congestion","weather","segment","expansion","diagnosis","reviews","operations","summary","visitor"].forEach(k => {
+    const names = { congestion:"혼잡", weather:"날씨", segment:"세그", expansion:"확장", diagnosis:"진단", reviews:"리뷰", operations:"운영", summary:"요약", visitor:"방문" };
+    (ins[k]||[]).forEach((t,i)=>insRows.push([names[k]+(i+1), strip(t)]));
+  });
+  if(ins.roadmap){
+    insRows.push(["단기", strip(ins.roadmap.short.text)],["효과단기", strip(ins.roadmap.short.effect)]);
+    insRows.push(["중기", strip(ins.roadmap.mid.text)],["효과중기", strip(ins.roadmap.mid.effect)]);
+    insRows.push(["장기", strip(ins.roadmap.long.text)],["효과장기", strip(ins.roadmap.long.effect)]);
+  }
+  add("인사이트", insRows);
+
+  XLSX.writeFile(wb, `표준양식_${VIEW_NAMES[view]}.xlsx`);
+}
+
+/* =========================================================
+   ② 이미지 업로드 → Vision AI 추출
+========================================================= */
+const imageInput = document.getElementById("imageInput");
+const dropImage = document.getElementById("dropImage");
+bindDrop(dropImage, imageInput, handleImage);
+imageInput.addEventListener("change", e => e.target.files[0] && handleImage(e.target.files[0]));
+
+async function handleImage(file){
+  try{
+    if(!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("PNG/JPG/WebP 이미지만 지원");
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(",")[1]);
+      r.onerror = () => rej(new Error("이미지 읽기 실패"));
+      r.readAsDataURL(file);
+    });
+    const prev = document.getElementById("imgPreview");
+    prev.src = "data:" + file.type + ";base64," + base64;
+    prev.style.display = "inline-block";
+    setStatus("imageStatus","info",`<span class="spin"></span>Vision AI가 이미지에서 수치를 추출 중... (약 15~30초)`);
+    const result = await callClaude([
+      { type:"image", source:{ type:"base64", media_type:file.type, data: base64 } },
+      { type:"text", text: buildPrompt(getTarget(), "위 이미지에 표시된 표·수치·텍스트를 판독하여 추출하라.") }
+    ]);
+    const view = mergeResult(result);
+    setStatus("imageStatus","ok",`✓ 추출 완료 — <b>${VIEW_NAMES[view]}</b> 뷰에 반영되었습니다. ③ 탭에서 수치 검증을 권장합니다.`);
+  }catch(err){
+    if(String(err.message).includes("Failed to fetch")){
+      setStatus("imageStatus","err",
+        `✗ Vision AI 추출 불가 — 이 기능은 <b>Claude 대화창의 미리보기 안에서 실행할 때만</b> 동작합니다.<br>
+         로컬(다운로드 파일)에서는 ① 탭의 표준 양식(XLSX) 업로드 또는 ③ 탭의 직접 편집을 이용하세요.`);
+    } else {
+      setStatus("imageStatus","err","✗ 실패: " + err.message);
+    }
+  }
+  imageInput.value = "";
+}
+
+function bindDrop(zone, input, handler){
+  ["dragenter","dragover"].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add("hover"); }));
+  ["dragleave","drop"].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove("hover"); }));
+  zone.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if(f) handler(f); });
+}
+
+/* =========================================================
+   ③ JSON 직접 편집
+========================================================= */
+function loadJsonToEditor(){
+  const t = getTarget() === "auto" ? currentView : getTarget();
+  const md = monthlyStore[currentMonthKey];
+  const val = (md && md[t]) ? md[t] : clone(DEFAULT_DATA[t]);
+  document.getElementById("jsonEditor").value = JSON.stringify(val, null, 2);
+}
+function applyJson(){
+  try{
+    const t = getTarget() === "auto" ? currentView : getTarget();
+    const parsed = JSON.parse(document.getElementById("jsonEditor").value);
+    if(!monthlyStore[currentMonthKey]) monthlyStore[currentMonthKey] = {};
+    monthlyStore[currentMonthKey][t] = parsed;
+    store.meta.source = "수동 편집 데이터";
+    currentView = t;
+    document.querySelectorAll(".vtab").forEach(b=>b.classList.toggle("active", b.dataset.view===t));
+    renderAll();
+    setStatus("jsonStatus","ok","✓ 적용 완료 — " + store.meta.period + " · " + VIEW_NAMES[t] + " 뷰가 갱신되었습니다.");
+  }catch(err){
+    setStatus("jsonStatus","err","✗ JSON 문법 오류: " + err.message);
+  }
+}
+function resetData(){
+  seedSample();
+  currentMonthKey = DEFAULT_MONTH;
+  currentView = "tammora";
+  document.querySelectorAll(".vtab").forEach(b=>b.classList.toggle("active", b.dataset.view==="tammora"));
+  const [ry, rm] = DEFAULT_MONTH.split("-").map(Number);
+  const ys = document.getElementById("selYear"), ms = document.getElementById("selMonth");
+  if(ys) ys.value = String(ry);
+  if(ms) ms.value = String(rm);
+  applyPeriod(ry, rm);
+  renderAll(); loadJsonToEditor();
+  setStatus("jsonStatus","ok","✓ 기본 데이터로 초기화되었습니다.");
+}
+
+/* =========================================================
+   내보내기 : PNG / PDF
+========================================================= */
+async function captureDash(){
+  const node = document.getElementById("dashboard");
+  return await html2canvas(node, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+}
+async function exportImage(){
+  try{
+    const canvas = await captureDash();
+    const a = document.createElement("a");
+    a.download = `호텔더본제주_${currentView}_대시보드.png`;
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  }catch(e){ alert("이미지 저장 실패: " + e.message); }
+}
+async function exportPDF(){
+  try{
+    const canvas = await captureDash();
+    const { jsPDF } = window.jspdf;
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    /* 세로로 긴 대시보드 → 페이지 분할 */
+    const imgW = pw, imgH = canvas.height * pw / canvas.width;
+    let remaining = imgH, pos = 0;
+    pdf.addImage(img, "PNG", 0, pos, imgW, imgH);
+    remaining -= ph;
+    while(remaining > 0){
+      pos -= ph;
+      pdf.addPage();
+      pdf.addImage(img, "PNG", 0, pos, imgW, imgH);
+      remaining -= ph;
+    }
+    pdf.save(`호텔더본제주_고객분석_${currentView}.pdf`);
+  }catch(e){ alert("PDF 저장 실패: " + e.message); }
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+/* 데이터 입력 패널은 관리자 전용 — 동료(뷰어)에겐 숨긴다.
+   관리자는 주소 뒤에 ?edit 을 붙이면(예: ...netlify.app/?edit) 패널이 나타난다. */
+if(!new URLSearchParams(location.search).has("edit")){
+  const ip = document.querySelector(".input-panel");
+  if(ip) ip.style.display = "none";
+}
+
+document.querySelectorAll('input[name="target"]').forEach(r =>
+  r.addEventListener("change", () => { if(document.getElementById("paneJson").classList.contains("active")) loadJsonToEditor(); }));
+
+async function bootApp(attempt = 0){
+  if(typeof Chart !== "undefined"){
+    await loadRemote();
+    initPeriodPicker();
+    renderAll();
+    loadJsonToEditor();
+    return;
+  }
+  if(attempt < 20){ setTimeout(() => bootApp(attempt + 1), 250); return; }
+  document.getElementById("dashboard").innerHTML =
+    `<div style="padding:40px;text-align:center;color:#a4442e;font-size:.95rem">
+      차트 라이브러리(Chart.js) 로드에 실패했습니다.<br>네트워크 연결을 확인한 후 페이지를 새로고침해 주세요.
+    </div>`;
+}
+if(document.readyState === "complete") bootApp();
+else window.addEventListener("load", () => bootApp());
+</script>
+
+
+</body></html>
