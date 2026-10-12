@@ -316,10 +316,10 @@ textarea.json-edit{width:100%;min-height:240px;border:1px solid var(--line);bord
 </section>
 
 <nav class="view-nav" role="tablist">
-  <button class="vtab active" data-view="tammora" onclick="switchView(this)">
+  <button class="vtab" data-view="tammora" onclick="switchView(this)">
     <span class="vt-no">VIEW 01</span><span class="vt-name">탐모라 조식당</span><span class="vt-sub">이용 추이 · 날씨 · 세그먼트 · 확장</span>
   </button>
-  <button class="vtab" data-view="rooms" onclick="switchView(this)">
+  <button class="vtab active" data-view="rooms" onclick="switchView(this)">
     <span class="vt-no">VIEW 02</span><span class="vt-name">객실 투숙 고객</span><span class="vt-sub">점유율 · 만족도 · 리뷰 토픽</span>
   </button>
   <button class="vtab" data-view="minibar" onclick="switchView(this)">
@@ -615,7 +615,7 @@ const clone = v => JSON.parse(JSON.stringify(v));
      - 넣은 월/뷰만 표시되고, 넣지 않은 월·뷰는 '자료 없음'으로 나옵니다.
      - 한 뷰만 넣어도 됩니다. 예) "2026-06": { checkin:{...} }
 */
-const DEFAULT_MONTH = "2026-08";
+const DEFAULT_MONTH = "2026-09";
 const EXTRA_MONTHS = {
 
   "2026-05": {
@@ -1674,12 +1674,214 @@ const EXTRA_MONTHS = {
         }
       }
     }
-  }
+  },
+
+    "2026-09": {
+      "rooms": {
+        "kpi": [
+          {
+            "label": "객실 점유율(OCC)",
+            "value": 85.7,
+            "unit": "%",
+            "note": "전월 85.6% 대비 +0.1%p"
+          },
+          {
+            "label": "전반 만족도",
+            "value": 4.5,
+            "unit": "/5",
+            "note": "직원 안내·응대 4.8 · 침구 4.8(전월과 동일)"
+          },
+          {
+            "label": "리뷰 작성",
+            "value": 62,
+            "unit": "건",
+            "note": "방문 2,926실(전월 대비 -97실) · 작성률 2.1%(전월 1.6% 대비 +0.5%p)"
+          },
+          {
+            "label": "재방문 의향",
+            "value": 4.7,
+            "unit": "/5",
+            "note": "지인 추천 8.8/10(전월 8.7 대비 +0.1)"
+          }
+        ],
+        "satisfaction": [
+          {
+            "label": "직원 안내·응대",
+            "score": 4.8
+          },
+          {
+            "label": "침구류 청결·편안함",
+            "score": 4.8
+          },
+          {
+            "label": "직원 친절도",
+            "score": 4.7
+          },
+          {
+            "label": "객실 청결",
+            "score": 4.7
+          },
+          {
+            "label": "웰컴쿠폰 혜택",
+            "score": 4.7
+          },
+          {
+            "label": "음료·스낵(미니바)",
+            "score": 4.7
+          },
+          {
+            "label": "식음업장(본가·다다익고·탐라는파스타)",
+            "score": 4.7
+          },
+          {
+            "label": "부대업장(빽다방·빵연구소)",
+            "score": 4.6
+          },
+          {
+            "label": "식음업장 다양성·접근성",
+            "score": 4.6
+          },
+          {
+            "label": "전반 만족도",
+            "score": 4.5
+          },
+          {
+            "label": "객실 편의시설",
+            "score": 4.5
+          },
+          {
+            "label": "시설 이용 편의성",
+            "score": 4.5
+          },
+          {
+            "label": "조식(탐모라)",
+            "score": 4.5
+          },
+          {
+            "label": "공용공간 위생관리",
+            "score": 4.4
+          },
+          {
+            "label": "웰컴쿠폰 편리성",
+            "score": 4.4
+          }
+        ],
+        "visitPurpose": [
+          {
+            "label": "가족여행",
+            "pct": 81.9
+          },
+          {
+            "label": "비즈니스",
+            "pct": 11.4
+          },
+          {
+            "label": "커플여행",
+            "pct": 3.2
+          },
+          {
+            "label": "기타(우정·골프여행 등)",
+            "pct": 3.2
+          }
+        ],
+        "roomType": [
+          {
+            "label": "디럭스 트리플",
+            "pct": 73.7
+          },
+          {
+            "label": "스탠다드 더블",
+            "pct": 16.3
+          },
+          {
+            "label": "디럭스 패밀리",
+            "pct": 4.9
+          },
+          {
+            "label": "주니어 스위트",
+            "pct": 3.2
+          },
+          {
+            "label": "온돌 스위트",
+            "pct": 1.6
+          }
+        ],
+        "topicsPositive": [
+          {
+            "label": "조식 및 식음료(F&B)",
+            "pct": 51
+          },
+          {
+            "label": "객실 상태 및 룸 컨디션",
+            "pct": 25
+          },
+          {
+            "label": "위치 및 주변 인프라",
+            "pct": 23
+          },
+          {
+            "label": "직원 서비스",
+            "pct": 19
+          },
+          {
+            "label": "가성비 및 기타 편의시설",
+            "pct": 15
+          }
+        ],
+        "topicsNegative": [
+          {
+            "label": "객실/배수/청소 상태",
+            "pct": 31
+          },
+          {
+            "label": "부대시설 부족(수영장·헬스장 등)",
+            "pct": 17
+          },
+          {
+            "label": "조식 및 식음료(F&B)",
+            "pct": 17
+          },
+          {
+            "label": "직원 서비스 및 응대",
+            "pct": 17
+          },
+          {
+            "label": "주차 및 공사 관련",
+            "pct": 10
+          }
+        ],
+        "insights": {
+          "diagnosis": [
+            "OCC <b>85.7%</b>로 전월(85.6%) 대비 <b>+0.1%p</b> 보합, 방문 객실수는 <b>2,926실</b>로 -97실(-3.2%) 감소(3,023→2,926실) — 성수기 정점(8월) 이후 점유 유지",
+            "리뷰 작성 <b>62건</b>(전월 50건, +12건), 작성률 <b>2.1%</b>로 전월(1.6%) 대비 <b>+0.5%p</b> 회복 — 방문 객실수 감소에도 리뷰 참여는 상승",
+            "<b>강점 유지</b> — 직원 안내·응대 4.8(+0.1)·침구 4.8(유지)·친절도 4.7 등 서비스 만족도 최상위, 재방문 의향 4.7(유지)·지인 추천 8.8/10(전월 8.7 대비 +0.1)",
+            "만족도 하락 항목: 직원 친절도 4.8→4.7(-0.1), 객실 청결 4.8→4.7(-0.1) / 상승 항목: 직원 안내·응대 4.7→4.8, 식음업장 4.6→4.7, 웰컴쿠폰 편리성 4.3→4.4(각 +0.1) / 전반 만족도 4.5 유지",
+            "부정 1위 <b>객실/배수/청소 상태 31%</b>(9건, 전월 24% 대비 <b>+7%p</b>) — 카펫 노후·먼지, 냉장고 소형, 에어컨 버튼·소음, 화장실 비데·샤워기 노후, <b>벌레 발견</b> 지적 <span class='risk-tag high'>리스크 상</span>",
+            "부정 구성 변화: 직원 서비스 및 응대 <b>17%</b>(전월 6%, <b>+11%p</b>, 프런트·식음업장 직원 무표정·응대 아쉬움), 조식 F&B 17%(전월 12%, +5%p, 쌀국수 등 메뉴 다양성·커피 맛), 부대시설 부족 17%(전월 22%, -5%p, 수영장 부재·OTT 미지원·피트니스 기구 부족), 주차·공사 10%(유지) <span class='risk-tag mid'>리스크 중</span>",
+            "<b>가족여행 81.9%</b>(전월 80.0%, +1.9%p)·<b>디럭스 트리플 73.7%</b>(전월 72.0%, +1.7%p) 편중 지속 — 트리플 객실 컨디션 관리가 만족도 핵심"
+          ],
+          "roadmap": {
+            "short": {
+              "text": "객실 위생 긴급 점검(벌레 발견 객실 방역·카펫 먼지·배수) 및 에어컨·비데·샤워기 불량 정비 / 프런트·식음업장 직원 응대 교육(무표정·불친절 지적 17%) / 체크아웃 시 리뷰 작성 안내 지속(작성률 2.1% 유지)",
+              "effect": "객실 부정 리뷰(31%) 감축 · 응대 불만 재발 방지"
+            },
+            "mid": {
+              "text": "디럭스 트리플 노후 설비(카펫·냉장고 용량·화장실 설비) 순차 교체 검토 / 조식 메뉴 다양성 보완(쌀국수 등)·커피 품질 점검 / 수영장·헬스장 대체 서비스(제휴 등)·OTT 지원 검토",
+              "effect": "핵심 객실군 컨디션 개선 · 조식·부대시설 불만 해소"
+            },
+            "long": {
+              "text": "증축 연계 주차장 확보 등 인프라 개선 / 노후 객실 순차 리뉴얼 및 객실 컨디션 표준화 체계 구축",
+              "effect": "객실·시설 만족도 및 재방문율 확보"
+            }
+          }
+        }
+      }
+    }
 };
 /* ▲▲▲▲▲ 매월 갱신 지점 끝 ▲▲▲▲▲ */
 
 let store = { meta: { period: "2026년 5월", source: "기본 샘플 데이터" } };
-let currentView = "tammora";
+let currentView = "rooms";
 let currentMonthKey = DEFAULT_MONTH;
 let charts = [];
 let publishDateStr = "";
@@ -2525,8 +2727,8 @@ function applyJson(){
 function resetData(){
   seedSample();
   currentMonthKey = DEFAULT_MONTH;
-  currentView = "tammora";
-  document.querySelectorAll(".vtab").forEach(b=>b.classList.toggle("active", b.dataset.view==="tammora"));
+  currentView = "rooms";
+  document.querySelectorAll(".vtab").forEach(b=>b.classList.toggle("active", b.dataset.view==="rooms"));
   const [ry, rm] = DEFAULT_MONTH.split("-").map(Number);
   const ys = document.getElementById("selYear"), ms = document.getElementById("selMonth");
   if(ys) ys.value = String(ry);
