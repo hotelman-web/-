@@ -222,6 +222,12 @@ textarea.json-edit{width:100%;min-height:240px;border:1px solid var(--line);bord
 }
 @media print{.masthead,.input-panel,.view-nav{display:none}body{background:#fff}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.cmp-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.cmp-table th{background:var(--green);color:#fff;padding:8px 10px;font-weight:700;text-align:center}
+.cmp-table td{padding:7px 10px;border-bottom:1px solid #e8ece6}
+.cmp-table td.g{font-weight:800;color:var(--green);background:var(--gold-bg);border-right:1px solid var(--gold-line);text-align:center}
+.cmp-table td.n{text-align:right;font-variant-numeric:tabular-nums}
+.dl{font-weight:800}.dl.up{color:#1e6b46}.dl.down{color:#a4442e}.dl.flat{color:#8a968f}
 </style>
 </head>
 <body>
@@ -1875,6 +1881,55 @@ const EXTRA_MONTHS = {
             }
           }
         }
+      },
+      "checkin": {
+        "title": "체크인 고객 방문자 데이터 분석",
+        "kpi": [
+          { "label": "여성 방문 비중", "value": 54.9, "unit": "%", "note": "전월 53.4% 대비 +1.5%p · 남성 45.1%" },
+          { "label": "가족 동반 비중", "value": 64.4, "unit": "%", "note": "전월 70.6% 대비 -6.2%p" },
+          { "label": "3~4인 동반 비중", "value": 51.7, "unit": "%", "note": "전월 58.1% 대비 -6.4%p · 2인 44.3%(+5.0%p)" },
+          { "label": "자녀 동반 비율", "value": 25.4, "unit": "%", "note": "영유아 6.0%·초등 19.4% (전월 21.6% 대비 +3.8%p)" }
+        ],
+        "age": [
+          { "label": "20대", "pct": 5.6 }, { "label": "30대", "pct": 33.1 },
+          { "label": "40대", "pct": 31.3 }, { "label": "50대", "pct": 22.0 }, { "label": "60대+", "pct": 7.9 }
+        ],
+        "gender": [
+          { "label": "여성", "pct": 54.9 }, { "label": "남성", "pct": 45.1 }
+        ],
+        "companion": [
+          { "label": "가족", "pct": 64.4 }, { "label": "커플", "pct": 22.1 },
+          { "label": "친구·지인", "pct": 11.4 }, { "label": "혼자", "pct": 1.9 }, { "label": "단체", "pct": 0.3 }
+        ],
+        "groupSize": [
+          { "label": "1인", "pct": 1.8 }, { "label": "2인", "pct": 44.3 },
+          { "label": "3~4인", "pct": 51.7 }, { "label": "5인+", "pct": 2.2 }
+        ],
+        "childType": [
+          { "label": "영유아 동반", "pct": 6.0 }, { "label": "초등 동반", "pct": 19.4 }, { "label": "자녀 없음", "pct": 74.6 }
+        ],
+        "insights": {
+          "visitor": [
+            "가족 동반 <b>64.4%</b>로 1위 유지, 성수기(8월 70.6%) 대비 <b>-6.2%p</b> — 가족 쏠림 완화",
+            "친구·지인 <b>11.4%</b>로 전월(5.5%) 대비 <b>+5.9%p</b>(약 2.1배) — 성수기 이후 성인 소규모 방문 회복",
+            "커플 22.1%(-0.4%p)·혼자 1.9%(+0.6%p)·단체 0.3%(+0.1%p)는 변동 1%p 미만"
+          ],
+          "segment": [
+            "30대 <b>33.1%</b>(+0.8%p) 1위, 40대 <b>31.3%</b>(+3.0%p)로 격차 1.8%p까지 근접 — 30~50대 합산 <b>86.4%</b>(전월 83.9%, +2.5%p)",
+            "60대+ 7.9%(-1.7%p)·20대 5.6%(-1.0%p) — 양 극단 연령대 합 13.5%로 전월(16.2%) 대비 -2.7%p",
+            "여성 <b>54.9%</b>로 남성(45.1%) 대비 9.8%p 우세, 전월(격차 6.8%p) 대비 확대"
+          ],
+          "summary": [
+            "동반 인원수 <b>3~4인 51.7%</b>(-6.4%p)·<b>2인 44.3%</b>(+5.0%p) — 1·2위 격차 18.8%p(8월) → <b>7.4%p</b>로 축소, 소규모 방문 비중 회복",
+            "자녀 동반 <b>25.4%</b>(+3.8%p) — 영유아 <b>6.0%</b>(+2.6%p, 전월 3.4%의 약 1.8배)·초등 19.4%(+1.2%p). 가족 비중은 하락했으나 자녀 동반은 상승 <span class='risk-tag mid'>리스크 중</span> 영유아 안전·편의용품 점검 필요",
+            "비율 기준 비교 — 월 방문자 수·일별 추이는 9월 자료 미제공으로 미반영(방문자 실수 증감 비교 불가)"
+          ],
+          "roadmap": {
+            "short": { "text": "영유아 동반 6.0%(+2.6%p) 대응 — 영유아 어메니티·안전용품 보유 수량 점검 / 2인 방문 비중 상승(44.3%)에 맞춘 객실 배정 기준 재점검", "effect": "영유아 가족 안전·편의 확보 · 2인 수요 대응" },
+            "mid": { "text": "친구·지인 11.4%(+5.9%p) 대상 소규모 그룹 패키지 시범 운영 / 30~40대(64.4%) 중심 타깃 광고 강화", "effect": "성수기 이후 비수기 수요 보완" },
+            "long": { "text": "체크인시간대·예약채널·방문자 실수 등 PMS 데이터 연동 체계 구축 지속 추진 — 방문자 관찰 데이터와 결합한 완전한 고객 여정 분석 확보", "effect": "데이터 기반 고객 관리 고도화" }
+          }
+        }
       }
     }
 };
@@ -2248,17 +2303,66 @@ function renderMinibar(d){
 /* =========================================================
    VIEW 04 : 체크인 고객
 ========================================================= */
+/* 전월 대비 비교 (체크인) */
+function prevKey(k){ const [y,m]=k.split("-").map(Number); const d=new Date(y,m-2,1); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function checkinRows(cur, prev){
+  const G=[["성별","gender"],["연령대","age"],["동반 형태","companion"],["동반 인원수","groupSize"],["동반 아동","childType"]];
+  const rows=[];
+  G.forEach(([gn,key])=>{ (cur[key]||[]).forEach(it=>{
+    const pv=(prev[key]||[]).find(x=>x.label===it.label);
+    if(pv) rows.push({g:gn,label:it.label,prev:pv.pct,cur:it.pct,d:Math.round((it.pct-pv.pct)*10)/10});
+  }); });
+  return rows;
+}
+function dTxt(v){
+  const c = Math.abs(v)<1 ? "flat" : (v>0?"up":"down");
+  const a = v>0 ? "▲ +" : (v<0 ? "▼ " : "- ");
+  return `<span class="dl ${c}">${a}${v.toFixed(1)}%p</span>`;
+}
+function deltaCard(){
+  return `<div class="chart-card"><div class="cc-head"><h3>전월 대비 증감 상위 항목</h3><span class="cc-note">단위: %p</span></div><div class="chart-box tall"><canvas id="chDelta"></canvas></div></div>`;
+}
+function compareSection(rows, hasDaily){
+  const pm = +prevKey(currentMonthKey).split("-")[1], cm = +currentMonthKey.split("-")[1];
+  let tb="", i=0;
+  while(i<rows.length){
+    const g=rows[i].g; let n=0; while(i+n<rows.length && rows[i+n].g===g) n++;
+    for(let j=0;j<n;j++){ const r=rows[i+j];
+      tb+=`<tr>${j===0?`<td class="g" rowspan="${n}">${g}</td>`:""}<td>${r.label}</td><td class="n">${r.prev.toFixed(1)}%</td><td class="n"><b>${r.cur.toFixed(1)}%</b></td><td class="n">${dTxt(r.d)}</td></tr>`; }
+    i+=n;
+  }
+  const table=`<div class="chart-card"><div class="cc-head"><h3>항목별 전월 대비 (${pm}월 → ${cm}월)</h3><span class="cc-note">비율 %, 증감 %p</span></div><table class="cmp-table"><thead><tr><th>구분</th><th>항목</th><th>${pm}월</th><th>${cm}월</th><th>증감</th></tr></thead><tbody>${tb}</tbody></table></div>`;
+  return secHead("3", `전월 대비 비교 (${pm}월 → ${cm}월)`) +
+    (hasDaily ? `<div class="chart-grid r21">${table}${deltaCard()}</div>` : `<div class="chart-grid" style="grid-template-columns:1fr">${table}</div>`);
+}
+function drawDelta(rows){
+  const top=[...rows].sort((a,b)=>Math.abs(b.d)-Math.abs(a.d)).slice(0,10);
+  charts.push(new Chart(document.getElementById("chDelta"), { type:"bar",
+    data:{ labels:top.map(r=>r.label),
+      datasets:[{ data:top.map(r=>r.d), backgroundColor:top.map(r=>r.d>=0?C.green:C.brick), borderRadius:4, maxBarThickness:22 }] },
+    options:{ ...baseOpts, indexAxis:"y", plugins:{ ...baseOpts.plugins, legend:{display:false} },
+      scales:{ x:{ grid:{color:C.grid}, ticks:{color:C.tick, font:{size:12}, callback:v=>v+"%p"} },
+               y:{ grid:{display:false}, ticks:{color:C.tick, font:{size:12,weight:600}} } } } }));
+}
+
 function renderCheckin(d){
+  const prevD = (monthlyStore[prevKey(currentMonthKey)]||{}).checkin || null;
+  const rows = prevD ? checkinRows(d, prevD) : [];
+  const hasDaily = Array.isArray(d.dailyTrend) && d.dailyTrend.length > 0;
+  const topLeft = hasDaily
+    ? `<div class="chart-card">
+          <div class="cc-head"><h3>일별 방문자 추이</h3><span class="cc-note">단위: 명</span></div>
+          <div class="chart-box tall"><canvas id="chDaily2"></canvas></div>
+        </div>`
+    : (rows.length ? deltaCard()
+        : `<div class="chart-card"><div class="cc-head"><h3>일별 방문자 추이</h3></div><p style="padding:24px 8px;color:#8a968f">해당 월 일별 방문자 자료 미제공</p></div>`);
   document.getElementById("dashboard").innerHTML = `
     ${secHead("★","체크인 고객 부문 핵심 요약 · 방문자 추이", store.meta.period)}
     <div class="dash-body">
       ${kpiCards(d.kpi)}
 
       <div class="chart-grid r21">
-        <div class="chart-card">
-          <div class="cc-head"><h3>일별 방문자 추이</h3><span class="cc-note">단위: 명</span></div>
-          <div class="chart-box tall"><canvas id="chDaily2"></canvas></div>
-        </div>
+        ${topLeft}
         <div class="stack-col">
           <div class="chart-card">
             <div class="cc-head"><h3>동반 유형 구성</h3><span class="cc-note">%</span></div>
@@ -2295,7 +2399,8 @@ function renderCheckin(d){
         </div>
       </div>
 
-      ${secHead("3","진단 · 체크인 고객 운영 로드맵")}
+      ${rows.length ? compareSection(rows, hasDaily) : ""}
+      ${secHead(rows.length?"4":"3","진단 · 체크인 고객 운영 로드맵")}
       <div class="insight-grid">
         ${insightBox("종합 진단", d.insights.summary, true)}
       </div>
@@ -2303,7 +2408,7 @@ function renderCheckin(d){
     </div>
     ${footHTML()}`;
 
-  charts.push(new Chart(chDaily2, { type:"line",
+  if(hasDaily) charts.push(new Chart(chDaily2, { type:"line",
     data:{ labels: d.dailyTrend.map((_,i)=>i+1),
       datasets:[{ data:d.dailyTrend, borderColor:C.green, backgroundColor:"rgba(30,64,52,.08)",
         pointBackgroundColor:C.green, pointRadius:3.5, fill:true, tension:.35, borderWidth:2.5 }] },
@@ -2337,6 +2442,8 @@ function renderCheckin(d){
     data:{ labels:d.childType.map(c=>`${c.label} ${c.pct}%`),
       datasets:[{ data:d.childType.map(c=>c.pct), backgroundColor:[C.green, C.gold, C.goldL], borderWidth:3, borderColor:"#fff" }] },
     options:{ ...baseOpts, cutout:"56%", plugins:{ ...baseOpts.plugins, legend:{ position:"right", labels:{ font:{size:11,weight:600}, boxWidth:12 } } } } }));
+
+  if(rows.length) drawDelta(rows);
 }
 
 /* =========================================================
