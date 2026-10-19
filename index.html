@@ -228,6 +228,11 @@ textarea.json-edit{width:100%;min-height:240px;border:1px solid var(--line);bord
 .cmp-table td.g{font-weight:800;color:var(--green);background:var(--gold-bg);border-right:1px solid var(--gold-line);text-align:center}
 .cmp-table td.n{text-align:right;font-variant-numeric:tabular-nums}
 .dl{font-weight:800}.dl.up{color:#1e6b46}.dl.down{color:#a4442e}.dl.flat{color:#8a968f}
+.kpi .k-yoy{display:inline-block;margin-top:8px;padding:3px 8px;border-radius:4px;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.1);color:#e8efe9}
+.kpi .k-yoy.pos{background:rgba(120,200,140,.18);color:#a8e6b8}
+.kpi .k-yoy.neg{background:rgba(240,130,110,.18);color:#ffb9a8}
+.cmp-table td.ref{color:#8a968f;font-size:.82rem}
+.yoy-note{font-size:.8rem;color:#7a867f;margin-top:10px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -1524,11 +1529,50 @@ const EXTRA_MONTHS = {
     },
     "rooms": {
       "kpi": [
-        { "label": "객실 점유율(OCC)", "value": 85.6, "unit": "%", "note": "전월 80.0% 대비 +5.6%p" },
+        { "label": "객실 점유율(OCC)", "value": 85.6, "unit": "%", "note": "전월 80.0% 대비 +5.6%p", "yoy": { "text": "전년 동월 88.9% 대비 ▼3.3%p", "tone": "neg" } },
         { "label": "전반 만족도", "value": 4.5, "unit": "/5", "note": "직원 친절도 4.8 · 침구 4.8" },
-        { "label": "리뷰 작성", "value": 50, "unit": "건", "note": "방문 3,023실 · 작성률 1.6%(전월 2.2% 대비 -0.6%p)" },
+        { "label": "리뷰 작성", "value": 50, "unit": "건", "note": "방문 3,023실 · 작성률 1.6%(전월 2.2% 대비 -0.6%p)", "yoy": { "text": "전년 동월 100건(2.7%) 대비 ▼50건", "tone": "neg" } },
         { "label": "재방문 의향", "value": 4.7, "unit": "/5", "note": "지인 추천 8.7/10" }
       ],
+      "yoy": {
+        "base": "25년 8월",
+        "curr": "26년 8월",
+        "rows": [
+          { "g": "핵심 지표", "label": "객실 점유율", "prev": "88.9%", "cur": "85.6%", "d": "▼ 3.3%p", "tone": "neg" },
+          { "g": "핵심 지표", "label": "방문 객실수", "prev": "3,687실", "cur": "3,023실", "d": "▼ 664실(-18.0%)", "tone": "neg" },
+          { "g": "핵심 지표", "label": "리뷰 작성 건수", "prev": "100건", "cur": "50건", "d": "▼ 50건(-50.0%)", "tone": "neg" },
+          { "g": "핵심 지표", "label": "리뷰 작성률", "prev": "2.7%", "cur": "1.6%", "d": "▼ 1.1%p", "tone": "neg" },
+          { "g": "긍정 리뷰", "label": "조식 만족", "prev": "15%", "cur": "52%", "d": "▲ 37%p", "tone": "pos" },
+          { "g": "긍정 리뷰", "label": "위치·접근성", "prev": "4%", "cur": "22%", "d": "▲ 18%p", "tone": "pos" },
+          { "g": "긍정 리뷰", "label": "객실 청결·상태", "prev": "16%", "cur": "24%", "d": "▲ 8%p", "tone": "pos" },
+          { "g": "긍정 리뷰", "label": "직원 친절·서비스", "prev": "35%", "cur": "16%", "d": "▼ 19%p", "tone": "neg" },
+          { "g": "부정 리뷰", "label": "부대·편의시설", "prev": "12%", "cur": "22%", "d": "▲ 10%p", "tone": "neg" },
+          { "g": "부정 리뷰", "label": "객실 상태·청결", "prev": "20%", "cur": "24%", "d": "▲ 4%p", "tone": "neg" },
+          { "g": "부정 리뷰", "label": "조식 불만", "prev": "10%", "cur": "12%", "d": "▲ 2%p", "tone": "neg" },
+          { "g": "부정 리뷰", "label": "직원 불친절", "prev": "12%", "cur": "6%", "d": "▼ 6%p", "tone": "pos" }
+        ],
+        "chart": {
+          "title": "리뷰 토픽 전년 대비 변동",
+          "items": [
+            { "label": "긍정·조식 만족", "d": 37, "tone": "pos" },
+            { "label": "긍정·위치/접근성", "d": 18, "tone": "pos" },
+            { "label": "긍정·객실 청결", "d": 8, "tone": "pos" },
+            { "label": "부정·직원 불친절", "d": -6, "tone": "pos" },
+            { "label": "부정·조식 불만", "d": 2, "tone": "neg" },
+            { "label": "부정·객실 상태", "d": 4, "tone": "neg" },
+            { "label": "부정·부대시설", "d": 10, "tone": "neg" },
+            { "label": "긍정·직원 서비스", "d": -19, "tone": "neg" }
+          ]
+        },
+        "insights": [
+          "OCC <b>88.9%→85.6%(▼3.3%p)</b>, 방문 객실 <b>-664실(-18.0%)</b> — 성수기 실적이 전년보다 낮음 <span class='risk-tag mid'>리스크 중</span>",
+          "리뷰 <b>100건→50건</b>으로 절반, 작성률 2.7%→1.6% — 리뷰 유도 체계 재정비 필요 <span class='risk-tag high'>리스크 상</span>",
+          "조식 긍정 언급 <b>15%→52%</b> — 전년 '인스턴트·구성 부실' 지적 대비 탐모라 만족도 크게 개선",
+          "부대시설 불만 <b>12%→22%</b> 증가(전년 본테라피 요금·편의점 → 올해 수영장·헬스장 부재), 객실 상태·청결 불만은 2년 연속 부정 1위 <span class='risk-tag high'>리스크 상</span>",
+          "직원 불친절 불만은 12%→6%로 절반 감소, 다만 직원 서비스 긍정 언급도 35%→16%로 축소"
+        ],
+        "note": "리뷰 토픽 비율은 산정 기준이 다릅니다(25년: 리뷰 건수 비중 / 26년: 리뷰 내 언급 비율). 방향성 참고용입니다. 25년 설문은 응답 분포(시설·객실 만족 92.7%, 직원 서비스 만족 94.8%)로 집계되어 26년 5점 척도와 직접 비교하지 않았습니다."
+      },
       "satisfaction": [
         { "label": "직원 친절도", "score": 4.8 },
         { "label": "객실 청결", "score": 4.8 },
@@ -1758,19 +1802,22 @@ const EXTRA_MONTHS = {
             "label": "객실 점유율(OCC)",
             "value": 85.7,
             "unit": "%",
-            "note": "전월 85.6% 대비 +0.1%p"
+            "note": "전월 85.6% 대비 +0.1%p",
+            "yoy": { "text": "전년 동월 96.3% 대비 ▼10.6%p", "tone": "neg" }
           },
           {
             "label": "전반 만족도",
             "value": 4.5,
             "unit": "/5",
-            "note": "직원 안내·응대 4.8 · 침구 4.8(전월과 동일)"
+            "note": "직원 안내·응대 4.8 · 침구 4.8(전월과 동일)",
+            "yoy": { "text": "전년 동월 4.8 대비 ▼0.3", "tone": "neg" }
           },
           {
             "label": "리뷰 작성",
             "value": 62,
             "unit": "건",
-            "note": "방문 2,926실(전월 대비 -97실) · 작성률 2.1%(전월 1.6% 대비 +0.5%p)"
+            "note": "방문 2,926실(전월 대비 -97실) · 작성률 2.1%(전월 1.6% 대비 +0.5%p)",
+            "yoy": { "text": "전년 동월 101건(2.6%) 대비 ▼39건", "tone": "neg" }
           },
           {
             "label": "재방문 의향",
@@ -1779,6 +1826,58 @@ const EXTRA_MONTHS = {
             "note": "지인 추천 8.8/10(전월 8.7 대비 +0.1)"
           }
         ],
+        "yoy": {
+          "base": "25년 9월",
+          "curr": "26년 9월",
+          "rows": [
+            { "g": "핵심 지표", "label": "객실 점유율", "prev": "96.3%", "cur": "85.7%", "d": "▼ 10.6%p", "tone": "neg" },
+            { "g": "핵심 지표", "label": "방문 객실수", "prev": "3,850실", "cur": "2,926실", "d": "▼ 924실(-24.0%)", "tone": "neg" },
+            { "g": "핵심 지표", "label": "리뷰 작성 건수", "prev": "101건", "cur": "62건", "d": "▼ 39건(-38.6%)", "tone": "neg" },
+            { "g": "핵심 지표", "label": "리뷰 작성률", "prev": "2.6%", "cur": "2.1%", "d": "▼ 0.5%p", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "전반 만족도", "prev": "4.8", "cur": "4.5", "d": "▼ 0.3", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "웰컴쿠폰 편리성", "prev": "4.8", "cur": "4.4", "d": "▼ 0.4", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "조식(탐모라)", "prev": "4.8", "cur": "4.5", "d": "▼ 0.3", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "공용공간 위생관리", "prev": "4.7", "cur": "4.4", "d": "▼ 0.3", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "직원 친절도", "prev": "4.9", "cur": "4.7", "d": "▼ 0.2", "tone": "neg" },
+            { "g": "만족도(5점)", "label": "식음업장 맛·서비스", "prev": "4.5", "cur": "4.7", "d": "▲ 0.2", "tone": "pos" },
+            { "g": "고객 구성", "label": "가족여행", "prev": "73.3%", "cur": "81.9%", "d": "▲ 8.6%p", "tone": "flat" },
+            { "g": "고객 구성", "label": "커플여행", "prev": "16.8%", "cur": "3.2%", "d": "▼ 13.6%p", "tone": "flat" },
+            { "g": "고객 구성", "label": "디럭스 트리플", "prev": "61.4%", "cur": "73.7%", "d": "▲ 12.3%p", "tone": "flat" },
+            { "g": "긍정 리뷰", "label": "조식·식음료 만족", "prev": "31%", "cur": "51%", "d": "▲ 20%p", "tone": "pos" },
+            { "g": "긍정 리뷰", "label": "위치·접근성", "prev": "8%", "cur": "23%", "d": "▲ 15%p", "tone": "pos" },
+            { "g": "부정 리뷰", "label": "객실 시설·위생", "prev": "34%", "cur": "31%", "d": "▼ 3%p", "tone": "pos" },
+            { "g": "부정 리뷰", "label": "조식 불만", "prev": "10%", "cur": "17%", "d": "▲ 7%p", "tone": "neg" },
+            { "g": "부정 리뷰", "label": "직원 응대", "prev": "-", "cur": "17%", "d": "신규 부각", "tone": "neg" }
+          ],
+          "chart": {
+            "title": "만족도 14개 항목 전년 대비 변동",
+            "unit": "점(5점 만점)",
+            "items": [
+              { "label": "식음업장 맛·서비스", "d": 0.2, "tone": "pos" },
+              { "label": "직원 안내·응대", "d": 0, "tone": "flat" },
+              { "label": "객실 청결", "d": 0, "tone": "flat" },
+              { "label": "침구 청결·편안함", "d": 0, "tone": "flat" },
+              { "label": "객실 편의시설", "d": 0, "tone": "flat" },
+              { "label": "시설 이용 편의성", "d": -0.1, "tone": "neg" },
+              { "label": "부대업장(빽다방)", "d": -0.1, "tone": "neg" },
+              { "label": "식음업장 다양성", "d": -0.1, "tone": "neg" },
+              { "label": "웰컴쿠폰 혜택", "d": -0.1, "tone": "neg" },
+              { "label": "직원 친절도", "d": -0.2, "tone": "neg" },
+              { "label": "전반 만족도", "d": -0.3, "tone": "neg" },
+              { "label": "조식(탐모라)", "d": -0.3, "tone": "neg" },
+              { "label": "공용공간 위생", "d": -0.3, "tone": "neg" },
+              { "label": "웰컴쿠폰 편리성", "d": -0.4, "tone": "neg" }
+            ]
+          },
+          "insights": [
+            "OCC <b>96.3%→85.7%(▼10.6%p)</b>, 방문 객실 <b>-924실(-24.0%)</b> — 8월(▼3.3%p)보다 전년 대비 격차 확대 <span class='risk-tag high'>리스크 상</span>",
+            "만족도 14개 항목 중 <b>9개 하락·4개 유지·1개 상승</b>, 전반 만족도 4.8→4.5 — 웰컴쿠폰 편리성(▼0.4)·조식·공용공간 위생(각 ▼0.3) 하락 폭 큼 <span class='risk-tag high'>리스크 상</span>",
+            "조식 긍정 언급 <b>31%→51%</b>로 늘었지만 조식 불만도 10%→17%, 점수는 4.8→4.5 — 언급량 대비 만족 강도 약화",
+            "객실 시설·위생 불만 <b>34%→31%</b>로 소폭 감소했으나 2년 연속 부정 1위 — 전년 9월 객실 전수 작업(30% 완료) 이후에도 지속",
+            "가족여행 <b>73.3%→81.9%</b>, 디럭스 트리플 61.4%→73.7%로 가족·트리플 집중 심화, 커플여행은 16.8%→3.2%로 급감"
+          ],
+          "note": "리뷰 토픽 비율은 산정 기준이 다릅니다(25년: 리뷰 건수 비중 / 26년: 리뷰 내 언급 비율). 방향성 참고용입니다. 26년 부정 토픽은 상위 5개만 집계되어, 25년 상위 항목(디지털 편의기기 18%·쿠폰 14%·객실 가전 13%)과 직접 비교하지 않았습니다. 고객 구성은 개선·악화 판단 없이 회색으로 표시했습니다."
+        },
         "satisfaction": [
           {
             "label": "직원 안내·응대",
@@ -2169,7 +2268,35 @@ function kpiCards(kpis, cols){
       <div class="k-label">${k.label}</div>
       <div class="k-value num">${fmt(k.value)}<small>${k.unit||""}</small></div>
       ${k.note ? `<div class="k-note">${k.note}</div>` : ""}
+      ${k.yoy ? `<div class="k-yoy ${k.yoy.tone||""}">${k.yoy.text}</div>` : ""}
     </div>`).join("") + `</div>`;
+}
+/* 전년 동월 대비 (데이터에 yoy가 있을 때만) — tone: pos(개선)/neg(악화)/flat */
+function yoySection(no, y){
+  let tb="", i=0; const R=y.rows;
+  while(i<R.length){
+    const g=R[i].g; let n=0; while(i+n<R.length && R[i+n].g===g) n++;
+    for(let j=0;j<n;j++){ const r=R[i+j];
+      const c = r.tone==="pos"?"up":(r.tone==="neg"?"down":"flat");
+      tb+=`<tr>${j===0?`<td class="g" rowspan="${n}">${g}</td>`:""}<td>${r.label}</td><td class="n">${r.prev}</td><td class="n"><b>${r.cur}</b></td><td class="n"><span class="dl ${c}">${r.d}</span></td></tr>`; }
+    i+=n;
+  }
+  const table=`<div class="chart-card"><div class="cc-head"><h3>${y.base} → ${y.curr}</h3><span class="cc-note">초록 개선 · 빨강 악화</span></div>
+    <table class="cmp-table"><thead><tr><th>구분</th><th>항목</th><th>${y.base}</th><th>${y.curr}</th><th>변동</th></tr></thead><tbody>${tb}</tbody></table>
+    ${y.note?`<div class="yoy-note">※ ${y.note}</div>`:""}</div>`;
+  const u = (y.chart && y.chart.unit) || "%p";
+  const chart = y.chart ? `<div class="chart-card"><div class="cc-head"><h3>${y.chart.title}</h3><span class="cc-note">단위: ${u}</span></div><div class="chart-box tall"${y.chart.items.length>9?` style="height:${y.chart.items.length*26+40}px"`:""}><canvas id="chYoy"></canvas></div></div>` : "";
+  const html = secHead(no, `전년 동월 대비 변동 (${y.base} → ${y.curr})`) +
+    `<div class="chart-grid r21">${table}<div class="stack-col">${chart}${y.insights?insightBox("전년 대비 진단", y.insights):""}</div></div>`;
+  const init = ()=>{ if(!y.chart) return;
+    const it=y.chart.items;
+    charts.push(new Chart(chYoy, { type:"bar",
+      data:{ labels:it.map(x=>x.label), datasets:[{ data:it.map(x=>x.d), backgroundColor:it.map(x=>x.tone==="pos"?"#4c9a5f":(x.tone==="neg"?C.brick:"#b8c2bc")), borderRadius:4, maxBarThickness:22, minBarLength:3 }] },
+      options:{ ...baseOpts, indexAxis:"y", plugins:{ ...baseOpts.plugins, legend:{display:false},
+          tooltip:{ ...baseOpts.plugins.tooltip, callbacks:{ label:c=>` ${c.parsed.x>0?"+":""}${c.parsed.x}${u==="%p"?"%p":""}` } } },
+        scales:{ x:{ ...gY, ticks:{...gY.ticks, callback:v=>(v>0?"+":"")+(Math.round(v*10)/10)+(u==="%p"?"%p":"")} }, y:{ ...gX, ticks:{...gX.ticks, font:{size:12,weight:600}, autoSkip:false} } } } }));
+  };
+  return { html, init };
 }
 function secHead(no, title, note){
   return `<div class="sec-head"><span class="sec-no">${no}</span><h2>${title}</h2>${note?`<span class="sec-note">${note}</span>`:""}</div>`;
@@ -2299,6 +2426,13 @@ function renderTammora(d){
 function renderRooms(d){
   const secs = [], inits = [];
   let n = 0;
+
+  /* 전년 동월 대비 (있을 때만, 최상단) */
+  if(d.yoy && d.yoy.rows && d.yoy.rows.length){
+    n++;
+    const ys = yoySection(n, d.yoy);
+    secs.push(ys.html); inits.push(ys.init);
+  }
 
   /* 항목별 평균 만족도 (있을 때만) */
   if(d.satisfaction && d.satisfaction.length){
